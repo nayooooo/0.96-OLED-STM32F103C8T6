@@ -13,5 +13,5 @@ Some collected graphic functions and self written functions.
 en:
 1. I put the header files that need to be imported frequently in sys.h.
 2. Please look over spi.h to pick up imformation whitch is about how to wire.
-3. T put the engineering document in "Project" floder, and the "hex" file in the "./Project/Objects".
+3. I put the engineering document in "Project" floder, and the "hex" file in the "./Project/Objects".
 4. You may look for macro definition used in precompiled instruction at its corresponding header file.
