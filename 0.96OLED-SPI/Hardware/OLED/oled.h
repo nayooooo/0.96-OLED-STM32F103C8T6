@@ -1,13 +1,13 @@
 /******************************************************************************
-	ËµÃ÷: 
+	è¯´æ˜Ž: 
 	----------------------------------------------------------------
-	GND    µçÔ´µØ
-	VCC  ½Ó5V»ò3.3vµçÔ´
-	D0   ½ÓPA5£¨SCL£©
-	D1   ½ÓPA7£¨SDA£©
-	RES  ½ÓPB0
-	DC   ½ÓPB1
-	CS   ½ÓPA4               
+	GND    ç”µæºåœ°
+	VCC  æŽ¥5Væˆ–3.3vç”µæº
+	D0   æŽ¥PA5ï¼ˆSCLï¼‰
+	D1   æŽ¥PA7ï¼ˆSDAï¼‰
+	RES  æŽ¥PB0
+	DC   æŽ¥PB1
+	CS   æŽ¥PA4               
 	----------------------------------------------------------------
 ******************************************************************************/
 #ifndef __OLED_H
@@ -31,7 +31,7 @@
 #define FILL 1
 #define CLEAR 0
 
-/* ---------------- OLED¶Ë¿Ú¶¨Òå ---------------- */
+/* ---------------- OLEDç«¯å£å®šä¹‰ ---------------- */
 
 #define OLED_SCLK_Clr()		SPI_SCLK_Clr()
 #define OLED_SCLK_Set()		SPI_SCLK_Set()
@@ -53,9 +53,9 @@
 #define OLED_CS_Set()		SPI_CS_Set()
 #define OLED_CS_Pin			SPI_CS_Pin
 
-/* ---------------- OLED¶Ë¿Ú¶¨Òå ---------------- */
+/* ---------------- OLEDç«¯å£å®šä¹‰ ---------------- */
 
-/* ---------------- ½á¹¹Ìå¶¨Òå ---------------- */
+/* ---------------- ç»“æž„ä½“å®šä¹‰ ---------------- */
 
 typedef struct
 {
@@ -82,9 +82,9 @@ typedef struct
 	uint8_t r;
 }Circle;
 
-/* ---------------- ½á¹¹Ìå¶¨Òå ---------------- */
+/* ---------------- ç»“æž„ä½“å®šä¹‰ ---------------- */
 
-/* ---------------- º¯ÊýÊµÏÖ·½·¨¶¨Òå ---------------- */
+/* ---------------- å‡½æ•°å®žçŽ°æ–¹æ³•å®šä¹‰ ---------------- */
 #define SHOW_EVERY_STEEP 0
 #define Stationary_Circle
 //#define Dynamic_Circle
@@ -93,9 +93,9 @@ typedef struct
 0 -> brasenham
 */
 #define OLED_DRAW_ELLIPSE_METHOD 0
-/* ---------------- º¯ÊýÊµÏÖ·½·¨¶¨Òå ---------------- */
+/* ---------------- å‡½æ•°å®žçŽ°æ–¹æ³•å®šä¹‰ ---------------- */
 
-//OLED¿ØÖÆÓÃº¯Êý
+//OLEDæŽ§åˆ¶ç”¨å‡½æ•°
 u32 mypow(u8 m,u8 n);
 static void OLED_WR_Byte(u8 dat,u8 cmd);
 void OLED_Display_On(void);
@@ -104,21 +104,27 @@ void OLED_Refresh_Gram(void);
 static void OLED_SPI_GPIO_Init(void);
 void OLED_SPI_Init(void);
 void OLED_Clear(void);
+
 void OLED_DrawPoint(u8 x,u8 y,u8 mode);
+
 void OLED_DrawLine(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode);
 void OLED_DrawLine_Angle(u8 x0, u8 y0, u8 lenght, u16 angle, u8 mode);
 void OLED_DrawCube(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode);
+
 void OLED_Draw_4_Pixels(u8 x0, u8 y0, u8 x, u8 y, u8 mode);
 void OLED_Draw_4_Pixels_Rotate(u8 x0, u8 y0, int16_t x, int16_t y, u16 angle, u8 mode);
 void OLED_Draw_8_Pixels(u8 x0, u8 y0, u8 x, u8 y, u8 mode);
 void OLED_Draw_8_Pixels_Rotate(u8 x0, u8 y0, int16_t x, int16_t y, u16 angle, u8 mode);
+
 void OLED_DrawCircle(u8 x0, u8 y0, u8 r, u8 mode);
 void OLED_DrawEllipse(u8 x0, u8 y0, u8 a, u8 b, u8 mode);
 void OLED_Draw_Two_Vertical_Ellipses(u8 x0, u8 y0, u8 a, u8 b, u8 mode);
 void OLED_DrawEllipse_Rotate(u8 x0, u8 y0, u8 a, u8 b, u16 angle, u8 mode);
 void OLED_Draw_Two_Vertical_Ellipses_Rotate(u8 x0, u8 y0, u8 a, u8 b, u16 angle, u8 mode);
+
 void OLED_ShowBMP(u8 x,u8 y,const u8 *p,u8 width,u8 height,u8 mode);
 void OLED_Fill(u8 x1,u8 y1,u8 x2,u8 y2,u8 mode);
+
 void OLED_ShowChar(u8 x,u8 y,u8 chr,u8 size,u8 mode);
 void OLED_ShowNum(u8 x,u8 y,u32 num,u8 len,u8 size,u8 mode);
 void OLED_ShowString(u8 x,u8 y,const u8 *p,u8 size,u8 mode);
