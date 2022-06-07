@@ -8,6 +8,7 @@ Some collected graphic functions and self written functions.
 2. 接线方式请移步spi.h。
 3. 工程文件放在Project文件夹中，hex文件放在./Project/Objects。
 4. 预编译指令中涉及到的宏定义一般写在对应的头文件中。
+
 en:
 1. I put the header files that need to be imported frequently in sys.h.
 2. Please look over spi.h to pick up imformation whitch is about how to wire.
