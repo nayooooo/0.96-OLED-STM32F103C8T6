@@ -28,6 +28,7 @@ void OLED_Draw_Filling_Circle(u8 const x0, u8 const y0, u8 const r, u8 dir, u8 m
 static bool Judge_Ball_is_Out_of_Bounds(Circle_Dir *c);
 static bool Judge_Two_Balls_is_Embed(Circle_Dir *c1, Circle_Dir *c2);
 
+void OLED_Show_Sliding_Door(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode);
 void OLED_Show_Boncing_Ball(void);
 
 void OLED_Show_Live_of_Circle(u8 const x0, u8 const y0, u8 const r, u8 mode);
