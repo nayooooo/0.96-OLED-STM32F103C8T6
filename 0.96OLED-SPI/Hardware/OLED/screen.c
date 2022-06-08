@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* --------------- ����Ԫ�� --------------- */
+/* --------------- 基础元素 --------------- */
 
 void OLED_Show_Picture(void)
 {
@@ -13,9 +13,9 @@ void OLED_Show_Picture(void)
 }
 
 /**
- * @brief ��һ����תֱ��
- * @param (x0, y0) ��ת����
- * @param ledght ֱ�߳���
+ * @brief 画一个旋转直线
+ * @param (x0, y0) 旋转中心
+ * @param ledght 直线长度
  */
 void OLED_Draw_Rotating_Line_Angle(u8 const x0, u8 const y0, u8 const lenght, u8 mode)
 {
@@ -30,10 +30,10 @@ void OLED_Draw_Rotating_Line_Angle(u8 const x0, u8 const y0, u8 const lenght, u8
 }
 
 /**
- * @brief ��һ����������԰
- * @param (x0, y0) Բ��
- * @param r Բ�뾶
- * @param dir ��䷽��0��ʾ������䣬1��ʾ�������
+ * @brief 画一个正在填充的园
+ * @param (x0, y0) 圆心
+ * @param r 圆半径
+ * @param dir 填充方向，0表示向里填充，1表示向外填充
  */
 void OLED_Draw_Filling_Circle(u8 const x0, u8 const y0, u8 const r, u8 dir, u8 mode)
 {
@@ -54,7 +54,7 @@ void OLED_Draw_Filling_Circle(u8 const x0, u8 const y0, u8 const r, u8 dir, u8 m
 				OLED_DrawCircle(x0, y0, i, mode);
 				OLED_Refresh_Gram();
 			}
-			//�뾶Ϊ0��Բ
+			//半径为0的圆
 			OLED_DrawCircle(x0, y0, i, mode);
 			OLED_Refresh_Gram();
 			break;
@@ -62,9 +62,82 @@ void OLED_Draw_Filling_Circle(u8 const x0, u8 const y0, u8 const r, u8 dir, u8 m
 	}
 }
 
-/* --------------- ����Ԫ�� --------------- */
+/**
+ * @brief 画一个圆角矩形，它的圆角的半径不断变化
+ * @param (x0, y0) 圆心
+ * @param r 圆半径
+ * @param dir 填充方向，0表示向里填充，1表示向外填充
+ */
+void OLED_Show_Cube_to_LikeCircle(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode)
+{
+	u8 i;
+	u8 a_b_min = (a<b)?(a):(b);
+	
+	for(i=0; i<a_b_min/2; i++)
+	{
+		OLED_Draw_Rounded_Cube(x0, y0, a, b, i, mode);
+		OLED_Refresh_Gram();
+		OLED_Draw_Rounded_Cube(x0, y0, a, b, i, !mode);
+	}
+	for(i--; i>0; i--)
+	{
+		OLED_Draw_Rounded_Cube(x0, y0, a, b, i, mode);
+		OLED_Refresh_Gram();
+		OLED_Draw_Rounded_Cube(x0, y0, a, b, i, !mode);
+	}
+}
 
-/* --------------- �жϺ��� --------------- */
+/**
+ * @brief 画一个圆角矩形，它的圆角的半径不断变化，并且圆角会溢出
+ * @param (x0, y0) 几何中心
+ * @param (a, b) 长和宽，默认上下边是长
+ */
+void OLED_Show_Cube_to_LikeCircle_Fillet_Overflow(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode)
+{
+	u8 i;
+	u8 a_b_min = (a<b)?(a):(b);
+	
+	for(i=0; i<a_b_min/2; i++)
+	{
+		OLED_Draw_Rounded_Cube_Fillet_Overflow(x0, y0, a, b, i, mode);
+		OLED_Refresh_Gram();
+		OLED_Draw_Rounded_Cube_Fillet_Overflow(x0, y0, a, b, i, !mode);
+	}
+	for(i--; i>0; i--)
+	{
+		OLED_Draw_Rounded_Cube_Fillet_Overflow(x0, y0, a, b, i, mode);
+		OLED_Refresh_Gram();
+		OLED_Draw_Rounded_Cube_Fillet_Overflow(x0, y0, a, b, i, !mode);
+	}
+}
+
+/**
+ * @brief 画一个DNA，由可溢出圆角矩形制作
+ * @param (x0, y0) 几何中心
+ * @param (a, b) 长和宽，默认上下边是长
+ */
+void OLED_Show_DNA(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode)
+{
+	u8 i;
+	u8 a_b_min = (a<b)?(a):(b);
+	
+	for(i=0; i<a_b_min; i++)
+	{
+		OLED_Draw_Rounded_Cube_Fillet_Overflow(x0, y0, a, b, i, mode);
+		OLED_Refresh_Gram();
+		OLED_Draw_Rounded_Cube_Fillet_Overflow(x0, y0, a, b, i, !mode);
+	}
+	for(i--; i>0; i--)
+	{
+		OLED_Draw_Rounded_Cube_Fillet_Overflow(x0, y0, a, b, i, mode);
+		OLED_Refresh_Gram();
+		OLED_Draw_Rounded_Cube_Fillet_Overflow(x0, y0, a, b, i, !mode);
+	}
+}
+
+/* --------------- 基础元素 --------------- */
+
+/* --------------- 判断函数 --------------- */
 
 static bool Judge_Ball_is_Out_of_Bounds(Circle_Dir *c)
 {
@@ -74,7 +147,7 @@ static bool Judge_Ball_is_Out_of_Bounds(Circle_Dir *c)
 	return false;
 }
 
-//�ж�����Բ�Ƿ�Ƕ��
+//判断两个圆是否嵌入
 static bool Judge_Two_Balls_is_Embed(Circle_Dir *c1, Circle_Dir *c2)
 {
 	if(fabs(c1->c.x0-c2->c.x0)<c1->c.r+c2->c.r &&\
@@ -83,11 +156,11 @@ static bool Judge_Two_Balls_is_Embed(Circle_Dir *c1, Circle_Dir *c2)
 	return false;
 }
 
-/* --------------- �жϺ��� --------------- */
+/* --------------- 判断函数 --------------- */
 
-/* --------------- ���� --------------- */
+/* --------------- 动画 --------------- */
 
-/*************** ��ʱû���� a<b �� ***************/
+/*************** 暂时没有做 a<b 的 ***************/
 
 void OLED_Show_Boncing_Ball(void)
 {
@@ -106,7 +179,7 @@ void OLED_Show_Boncing_Ball(void)
 	
 	OLED_DrawCircle(circle_1.c.x0, circle_1.c.y0, circle_1.c.r, CLEAR);
 	OLED_DrawCircle(circle_2.c.x0, circle_2.c.y0, circle_2.c.r, CLEAR);
-	// �ƶ� circle_1
+	// 移动 circle_1
 	circle_1.dir = rand() % Circle_Dir_Max;
 	switch(circle_1.dir)
 	{
@@ -132,7 +205,7 @@ void OLED_Show_Boncing_Ball(void)
 		break;
 		default: break;
 	}
-	// �ƶ� circle_2
+	// 移动 circle_2
 	circle_2.dir = rand() % Circle_Dir_Max;
 	switch(circle_2.dir)
 	{
@@ -210,7 +283,7 @@ void OLED_Show_Rotating_Two_Vertical_Ellipses(u8 const x0, u8 const y0, u8 const
 void OLED_Show_Rotating_Telescoping_Two_Vertical_Ellipses(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode)
 {
 	uint8_t i, j;
-	uint8_t dir = 1;  // 1��ʾ�죬0��ʾ��
+	uint8_t dir = 1;  // 1表示伸，0表示缩
 	uint16_t angle;
 	
 	i = a-b; j = 0;
@@ -226,4 +299,4 @@ void OLED_Show_Rotating_Telescoping_Two_Vertical_Ellipses(u8 const x0, u8 const 
 	}
 }
 
-/* --------------- ���� --------------- */
+/* --------------- 动画 --------------- */
