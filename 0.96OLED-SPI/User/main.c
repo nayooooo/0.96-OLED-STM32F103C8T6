@@ -15,7 +15,7 @@ int main()
 	
 //	OLED_Draw_Two_Vertical_Ellipses(63, 31, 30, 20, FILL); OLED_Refresh_Gram();
 //	OLED_Draw_Two_Vertical_Ellipses_Rotate(63, 31, 30, 20, 0, FILL); OLED_Refresh_Gram();
-//	OLED_Draw_Rounded_Cube(63, 31, 60, 30, 30, FILL);
+	OLED_Draw_Rounded_Cube(63, 31, 30, 60, 30, FILL);
 //	OLED_Refresh_Gram();
 	OLED_Show_DNA(63, 31, 60, 30, FILL);
 	LED = LED_ON;
