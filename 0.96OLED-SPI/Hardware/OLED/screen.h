@@ -31,14 +31,18 @@ static bool Judge_Two_Balls_is_Embed(Circle_Dir *c1, Circle_Dir *c2);
 void OLED_Show_Sliding_Door(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode);
 void OLED_Show_Boncing_Ball(void);
 
+void OLED_Show_Shrinking_Cube(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode);
 void OLED_Show_Live_of_Circle(u8 const x0, u8 const y0, u8 const r, u8 mode);
 void OLED_Show_Filling_Circle_to_Whole_Screen(u8 const x0, u8 const y0, u8 const r, u8 mode);
-void OLED_Show_Rotating_Ellipse(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode);
+void OLED_Show_Rotating_Ellipse(u8 const x0, u8 const y0, u8 const a, u8 const b, u16 const angle, u8 mode);
 void OLED_Show_Rotating_Two_Vertical_Ellipses(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode);
 void OLED_Show_Rotating_Telescoping_Two_Vertical_Ellipses(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode);
 void OLED_Show_Cube_to_Circle(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode);
 void OLED_Show_Cube_to_LikeCircle(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode);
 void OLED_Show_Cube_to_LikeCircle_Fillet_Overflow(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode);
+void OLED_Show_Cube_Catched_by_Elliipse(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode);
 void OLED_Show_DNA(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode);
+
+void Demo_01(void);
 
 #endif
