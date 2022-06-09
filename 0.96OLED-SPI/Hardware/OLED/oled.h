@@ -106,12 +106,16 @@ void OLED_SPI_Init(void);
 void OLED_Clear(void);
 
 void OLED_DrawPoint(u8 x,u8 y,u8 mode);
+int8_t OLED_ReadPoint(u8 x,u8 y);
+//bool OLED_ReadPoint_by_CMD(u8 x, u8 y);
 
 void OLED_DrawLine(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode);
 void OLED_DrawLine_Angle(u8 x0, u8 y0, u8 lenght, u16 angle, u8 mode);
 void OLED_DrawCube(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode);
 void OLED_Draw_Rounded_Cube(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
+void OLED_Draw_Rounded_Cube_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
 void OLED_Draw_Rounded_Cube_Fillet_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
+void OLED_Draw_Rounded_Cube_Fillet_Overflow_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
 
 void OLED_Draw_4_Pixels(u8 x0, u8 y0, u8 x, u8 y, u8 mode);
 void OLED_Draw_4_Pixels_Rotate(u8 x0, u8 y0, int16_t x, int16_t y, u16 angle, u8 mode);
