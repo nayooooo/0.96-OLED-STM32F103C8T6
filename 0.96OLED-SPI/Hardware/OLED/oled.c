@@ -298,12 +298,58 @@ void OLED_DrawCube(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode)
 	OLED_DrawLine(x2,y1,x2,y2,mode);
 }
 
+/**
+ * @brief OLED画方，智能处理溢出屏幕，具有一定的容错率
+ * @method 如果边会溢出屏幕，将智能处理几何中心
+ * @param (x0, y0) 矩形中心
+ * @param (a, b) 矩形的长和宽，默认长指的是上下边
+ */
+void OLED_DrawCube_Intelligent_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 mode)
+{
+	uint8_t Overflow_Flag = 0X00;  // 0, 1, 2, 3bit 分别表示行低高位溢出、列低高位溢出
+	Point p1, p2;
+	
+	// 初步处理并标记溢出
+	if(x0-a/2<0)
+	{
+		Overflow_Flag |= 0X01;
+		b = (1.0 * b) * x0 / a;
+		a = 2 * x0;
+	}
+	if(y0-b/2<0)
+	{
+		Overflow_Flag |= 0X04;
+		a = (1.0 * a) * (2 * y0) / b;
+		b = 2 * y0;
+	}
+	// 最终处理
+	if(x0+a/2>=OLED_COL_MAX)
+	{
+		Overflow_Flag |= 0X02;
+		b = 1.0 * b * (2 * (OLED_COL_MAX - x0)) / b;
+		a = 2 * (OLED_COL_MAX - x0);
+	}
+	if(y0+b/2>=OLED_ROW_MAX)
+	{
+		Overflow_Flag |= 0X08;
+		a = 1.0 * a * (2 * (OLED_ROW_MAX - y0)) / a;
+		b = 2 * (OLED_ROW_MAX - y0);
+	}
+	
+	p1.x = x0 - a / 2; p1.y = y0 - b / 2;
+	p2.x = x0 + a / 2; p2.y = y0 + b / 2;
+	
+	OLED_DrawLine(p1.x, p2.y, p2.x, p2.y, mode);
+	OLED_DrawLine(p1.x, p1.y, p2.x, p1.y, mode);
+	OLED_DrawLine(p1.x, p2.y, p1.x, p1.y, mode);
+	OLED_DrawLine(p2.x, p2.y, p2.x, p1.y, mode);
+}
 
 /**
  * @brief OLED画标准圆角矩形
  * @method 先按照矩形的画法画出一个缺角矩形，然后按照画圆的方法画出四个圆角
  * @param (x0, y0) 矩形中心
- * @param a,b 矩形的长和宽，默认长指的是上下边
+ * @param (a, b) 矩形的长和宽，默认长指的是上下边
  * @param r 圆角矩形的圆角的半径
  */
 void OLED_Draw_Rounded_Cube(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
@@ -518,6 +564,20 @@ void OLED_Draw_4_Pixels_Rotate(u8 x0, u8 y0, int16_t x, int16_t y, u16 angle, u8
 	OLED_DrawPoint(x_c-_y_s		+x0,	x_s+_y_c	+y0,	mode);					/* 第二象限 */
 	OLED_DrawPoint(_x_c-_y_s	+x0,	_x_s+_y_c	+y0,	mode);					/* 第三象限 */
 	OLED_DrawPoint(_x_c-y_s		+x0,	_x_s+y_c	+y0,	mode);					/* 第四象限 */
+}
+
+/**
+ * @brief 以某一点为中心绘制4个点，这4个点和中心点之间的距离为 (dx, dy)
+ * @param (x0, y0) 对称中心
+ * @param (x, y) 需要绘制的4个点中，位于一区域的点
+ * @param (dx, dy) 偏移距离
+ */
+void OLED_Draw_4_Pixels_Spread_Out_From_Center(u8 x0, u8 y0, u8 x, u8 y, u8 dx, u8 dy, u8 mode)
+{
+	OLED_DrawPoint(x		+dx,	y		+dy,	mode);		/* 第一象限 */
+	OLED_DrawPoint(x		+dx,	2*y0-y	-dy,	mode);		/* 第二象限 */
+	OLED_DrawPoint(2*x0-x	-dx,	2*y0-y	-dy,	mode);		/* 第三象限 */
+	OLED_DrawPoint(2*x0-x	-dx,	y		+dy,	mode);		/* 第四象限 */
 }
 
 /**
