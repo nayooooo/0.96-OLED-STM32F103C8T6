@@ -71,6 +71,18 @@ typedef struct
 
 typedef struct
 {
+	uint16_t x;
+	uint16_t y;
+}Point_uint16_t;
+
+typedef struct
+{
+	int16_t x;
+	int16_t y;
+}Point_int16_t;
+
+typedef struct
+{
 	float x;
 	float y;
 }Point_Float;
@@ -112,6 +124,7 @@ int8_t OLED_ReadPoint(u8 x,u8 y);
 void OLED_DrawLine(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode);
 void OLED_DrawLine_Angle(u8 x0, u8 y0, u8 lenght, u16 angle, u8 mode);
 void OLED_DrawCube(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode);
+void OLED_DrawCube_Intelligent_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 mode);
 void OLED_Draw_Rounded_Cube(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
 void OLED_Draw_Rounded_Cube_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
 void OLED_Draw_Rounded_Cube_Fillet_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
@@ -119,6 +132,7 @@ void OLED_Draw_Rounded_Cube_Fillet_Overflow_Erasure_Method(u8 x0, u8 y0, u8 a, u
 
 void OLED_Draw_4_Pixels(u8 x0, u8 y0, u8 x, u8 y, u8 mode);
 void OLED_Draw_4_Pixels_Rotate(u8 x0, u8 y0, int16_t x, int16_t y, u16 angle, u8 mode);
+void OLED_Draw_4_Pixels_Spread_Out_From_Center(u8 x0, u8 y0, u8 x, u8 y, u8 dx, u8 dy, u8 mode);
 void OLED_Draw_8_Pixels(u8 x0, u8 y0, u8 x, u8 y, u8 mode);
 void OLED_Draw_8_Pixels_Rotate(u8 x0, u8 y0, int16_t x, int16_t y, u16 angle, u8 mode);
 void OLED_Draw_8_Pixels_Spread_Out_From_Center(u8 x0, u8 y0, u8 x, u8 y, u8 dx, u8 dy, u8 mode);
