@@ -63,6 +63,44 @@ void OLED_Draw_Filling_Circle(u8 const x0, u8 const y0, u8 const r, u8 dir, u8 m
 }
 
 /**
+ * @brief 画一个矩形变化到圆
+ * @param (x0, y0) 几何中心
+ * @param (a, b) 长和宽，默认上下边是长
+ */
+void OLED_Show_Cube_to_Circle(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode)
+{
+	u8 i, j;
+	u8 flag = (a>b)?(0):(1);  // 0表示a>b
+	u8 a_b_min = (a<b)?(a):(b);
+	u8 a_b_max = (a>b)?(a):(b);
+	
+	for(i=0; i<a_b_min/2; i++)
+	{
+		OLED_Draw_Rounded_Cube(x0, y0, a, b, i, mode);
+		OLED_Refresh_Gram();
+		OLED_Draw_Rounded_Cube(x0, y0, a, b, i, !mode);
+	}
+	for(j=a_b_max-1; j>a_b_min/2; j--)
+	{
+		OLED_Draw_Rounded_Cube(x0, y0, (flag)?(a):(j), (flag)?(j):(b), i, mode);
+		OLED_Refresh_Gram();
+		OLED_Draw_Rounded_Cube(x0, y0, (flag)?(a):(j), (flag)?(j):(b), i, !mode);
+	}
+	for(; j<a_b_max; j++)
+	{
+		OLED_Draw_Rounded_Cube(x0, y0, (flag)?(a):(j), (flag)?(j):(b), i, mode);
+		OLED_Refresh_Gram();
+		OLED_Draw_Rounded_Cube(x0, y0, (flag)?(a):(j), (flag)?(j):(b), i, !mode);
+	}
+	for(; i>0; i--)
+	{
+		OLED_Draw_Rounded_Cube(x0, y0, a, b, i, mode);
+		OLED_Refresh_Gram();
+		OLED_Draw_Rounded_Cube(x0, y0, a, b, i, !mode);
+	}
+}
+
+/**
  * @brief 画一个圆角矩形，它的圆角的半径不断变化
  * @param (x0, y0) 圆心
  * @param r 圆半径
@@ -134,6 +172,8 @@ void OLED_Show_DNA(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode)
 		OLED_Refresh_Gram();
 		OLED_Draw_Rounded_Cube_Fillet_Overflow(x0, y0, a, b, i, !mode);
 	}
+	//清理残余
+	OLED_Draw_Rounded_Cube_Fillet_Overflow(x0, y0, a, b, i, !mode);
 }
 
 /* --------------- 基础元素 --------------- */
@@ -162,7 +202,7 @@ static bool Judge_Two_Balls_is_Embed(Circle_Dir *c1, Circle_Dir *c2)
 /* --------------- 动画 --------------- */
 
 /**
- * @brief 推拉门，不过还不太清楚为什么会这样
+ * @brief 推拉门
  * @param (x0, y0) 几何中心
  * @param (a, b) 长和宽，默认上下边是长
  */
@@ -175,27 +215,28 @@ void OLED_Show_Sliding_Door(u8 const x0, u8 const y0, u8 const a, u8 const b, u8
 	
 	for(i=0; i<a_b_min/2; i++)
 	{
-		OLED_Draw_Rounded_Cube(x0, y0, a, b, i, mode);
+		OLED_Draw_Rounded_Cube_Erasure_Method(x0, y0, a, b, i, mode);
 		OLED_Refresh_Gram();
-		OLED_Draw_Rounded_Cube(x0, y0, a, b, i, !mode);
+		OLED_Draw_Rounded_Cube_Erasure_Method(x0, y0, a, b, i, !mode);
 	}
+	//使用OLED_Draw_Rounded_Cube_Erasure_Method清除痕迹会因为画缺角时的反转而留下痕迹
 	for(j=a_b_max-1; j>a_b_min/2; j--)
 	{
-		OLED_Draw_Rounded_Cube(x0, y0, (flag)?(a):(j), (flag)?(j):(b), i, mode);
+		OLED_Draw_Rounded_Cube_Erasure_Method(x0, y0, (flag)?(a):(j), (flag)?(j):(b), i, mode);
 		OLED_Refresh_Gram();
-		OLED_Draw_Rounded_Cube(x0, y0, (flag)?(a):(j), (flag)?(j):(b), i, !mode);
+		OLED_Draw_Rounded_Cube_Erasure_Method(x0, y0, (flag)?(a):(j), (flag)?(j):(b), i, !mode);
 	}
 	for(; j<a_b_max; j++)
 	{
-		OLED_Draw_Rounded_Cube(x0, y0, (flag)?(a):(j), (flag)?(j):(b), i, mode);
+		OLED_Draw_Rounded_Cube_Erasure_Method(x0, y0, (flag)?(a):(j), (flag)?(j):(b), i, mode);
 		OLED_Refresh_Gram();
-		OLED_Draw_Rounded_Cube(x0, y0, (flag)?(a):(j), (flag)?(j):(b), i, !mode);
+		OLED_Draw_Rounded_Cube_Erasure_Method(x0, y0, (flag)?(a):(j), (flag)?(j):(b), i, !mode);
 	}
 	for(; i>0; i--)
 	{
-		OLED_Draw_Rounded_Cube(x0, y0, a, b, i, mode);
+		OLED_Draw_Rounded_Cube_Erasure_Method(x0, y0, a, b, i, mode);
 		OLED_Refresh_Gram();
-		OLED_Draw_Rounded_Cube(x0, y0, a, b, i, !mode);
+		OLED_Draw_Rounded_Cube_Erasure_Method(x0, y0, a, b, i, !mode);
 	}
 }
 
