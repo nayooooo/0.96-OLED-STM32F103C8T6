@@ -466,34 +466,34 @@ void OLED_Show_Rotating_Ellipse(u8 const x0, u8 const y0, u8 const a, u8 const b
 	}
 }
 
-void OLED_Show_Rotating_Two_Vertical_Ellipses(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode)
+void OLED_Show_Rotating_Two_Vertical_Ellipses(u8 const x0, u8 const y0, u8 const a, u8 const b, u16 const angle, u8 mode)
 {
-	uint16_t angle;
+	uint16_t i;
 	
-	for(angle=0; angle<360; angle++)
+	for(i=0; i<angle; i++)
 	{
-		OLED_Draw_Two_Vertical_Ellipses_Rotate(x0, y0, a, b, angle, mode);
+		OLED_Draw_Two_Vertical_Ellipses_Rotate(x0, y0, a, b, i, mode);
 		OLED_Refresh_Gram();
-		OLED_Draw_Two_Vertical_Ellipses_Rotate(x0, y0, a, b, angle, !mode);
+		OLED_Draw_Two_Vertical_Ellipses_Rotate(x0, y0, a, b, i, !mode);
 	}
 }
 
-void OLED_Show_Rotating_Telescoping_Two_Vertical_Ellipses(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode)
+void OLED_Show_Rotating_Telescoping_Two_Vertical_Ellipses(u8 const x0, u8 const y0, u8 const a, u8 const b, u16 const angle, u8 mode)
 {
 	uint8_t i, j;
 	uint8_t dir = 1;  // 1表示伸，0表示缩
-	uint16_t angle;
+	uint16_t k;
 	
 	i = a-b; j = 0;
-	for(angle=0; angle<360; angle++)
+	for(k=0; k<angle; k++)
 	{
 		if(j==0) dir = 1;
 		else if(j==b) dir = 0;
 		if(dir) i++, j++;
 		else i--, j--;
-		OLED_Draw_Two_Vertical_Ellipses_Rotate(x0, y0, i, j, angle, mode);
+		OLED_Draw_Two_Vertical_Ellipses_Rotate(x0, y0, i, j, k, mode);
 		OLED_Refresh_Gram();
-		OLED_Draw_Two_Vertical_Ellipses_Rotate(x0, y0, i, j, angle, !mode);
+		OLED_Draw_Two_Vertical_Ellipses_Rotate(x0, y0, i, j, k, !mode);
 	}
 }
 
@@ -507,8 +507,8 @@ void Demo_01(void)
 	OLED_Show_Cube_to_Circle(63, 31, 60, 30, FILL);
 	OLED_Show_Cube_Catched_by_Elliipse(63, 31, 30, 20, FILL);
 	OLED_Show_Rotating_Ellipse(63, 31, 30, 20, 180, FILL);
-	OLED_Show_Rotating_Two_Vertical_Ellipses(63, 31, 30, 20, FILL);
-	OLED_Show_Rotating_Telescoping_Two_Vertical_Ellipses(63, 31, 30, 20, FILL);
+	OLED_Show_Rotating_Two_Vertical_Ellipses(63, 31, 30, 20, 180, FILL);
+	OLED_Show_Rotating_Telescoping_Two_Vertical_Ellipses(63, 31, 30, 20, 180, FILL);
 	OLED_Show_Sliding_Door(63, 31, 60, 30, FILL);
 	OLED_Show_Cube_to_LikeCircle(63, 31, 60, 30, FILL);
 	OLED_Show_DNA(63, 31, 60, 30, FILL);
