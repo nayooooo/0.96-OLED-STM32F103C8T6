@@ -13,6 +13,25 @@ void OLED_Show_Picture(void)
 }
 
 /**
+ * @brief 画一个从最大缩小到指定位置的方形
+ * @param (x0, y0) 缩小完成后的几何中心
+ * @param (a, b) 缩小完成后的长宽，默认上下边为长
+ */
+void OLED_Show_Shrinking_Cube(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode)
+{
+	uint8_t Shr_a = OLED_COL_MAX-1, Shr_b = OLED_ROW_MAX-1;
+	
+	for(;Shr_a>a && Shr_b>b;)
+	{
+		if(Shr_a>a) Shr_a--;
+		if(Shr_b>b) Shr_b--;
+		OLED_DrawCube_Intelligent_Overflow(x0, y0, Shr_a, Shr_b, mode);
+		OLED_Refresh_Gram();
+		OLED_DrawCube_Intelligent_Overflow(x0, y0, Shr_a, Shr_b, !mode);
+	}
+}
+
+/**
  * @brief 画一个旋转直线
  * @param (x0, y0) 旋转中心
  * @param ledght 直线长度
@@ -146,6 +165,105 @@ void OLED_Show_Cube_to_LikeCircle_Fillet_Overflow(u8 const x0, u8 const y0, u8 c
 		OLED_Draw_Rounded_Cube_Fillet_Overflow(x0, y0, a, b, i, mode);
 		OLED_Refresh_Gram();
 		OLED_Draw_Rounded_Cube_Fillet_Overflow(x0, y0, a, b, i, !mode);
+	}
+}
+
+/**
+ * @brief 画一个矩形变化到椭圆
+ * @param (x0, y0) 几何中心
+ * @param (a, b) 同时为矩形的长和宽的一半及椭圆的长半轴长和短半轴长
+ */
+void OLED_Show_Cube_Catched_by_Elliipse(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode)
+{
+	uint8_t a_temp = 0, b_temp = 0;
+	Point_Signed p;
+	float d1;
+	
+	while(a_temp<a || b_temp<b)
+	{
+		{
+			p.x = 0; p.y = b_temp;
+			d1 = b * b + a * a * (-b + 0.25);
+			OLED_Draw_4_Pixels_Spread_Out_From_Center(x0, y0, x0+p.x, y0+p.y, a-a_temp, b-b_temp, mode);
+			while (b * b * (p.x + 1) < a * a * (p.y - 0.5))
+			{
+				if (d1 <= 0)
+				{
+					d1 += b * b * (2 * p.x + 3);
+					p.x++;
+				}
+				else
+				{
+					d1 += (b * b * (2 * p.x + 3) + a * a * (-2 * p.y + 2));
+					p.x++;
+					p.y--;
+				}
+				OLED_Draw_4_Pixels_Spread_Out_From_Center(x0, y0, x0+p.x, y0+p.y, a-a_temp, b-b_temp, mode);
+			}
+			float d2 = b * b * (p.x + 0.5) * (p.x + 0.5) + a * a * (p.y - 1) * (p.y - 1) - a * a * b * b;
+			while (p.y > 0)
+			{
+				if (d2 <= 0)
+				{
+					d2 += b * b * (2 * p.x + 2) + a * a * (-2 * p.y + 3);
+					p.x++;
+					p.y--;
+				}
+				else
+				{
+					d2 += a * a * (-2 * p.y + 3);
+					p.y--;
+				}
+				OLED_Draw_4_Pixels_Spread_Out_From_Center(x0, y0, x0+p.x, y0+p.y, a-a_temp, b-b_temp, mode);
+			}
+		}
+		OLED_DrawLine(x0-a+a_temp, y0+b-b_temp, x0+a-a_temp, y0+b-b_temp, mode);
+		OLED_DrawLine(x0-a+a_temp, y0-b+b_temp, x0+a-a_temp, y0-b+b_temp, mode);
+		OLED_DrawLine(x0-a+a_temp, y0+b-b_temp, x0-a+a_temp, y0-b+b_temp, mode);
+		OLED_DrawLine(x0+a-a_temp, y0+b-b_temp, x0+a-a_temp, y0-b+b_temp, mode);
+		OLED_Refresh_Gram();
+		OLED_DrawLine(x0-a+a_temp, y0+b-b_temp, x0+a-a_temp, y0+b-b_temp, !mode);
+		OLED_DrawLine(x0-a+a_temp, y0-b+b_temp, x0+a-a_temp, y0-b+b_temp, !mode);
+		OLED_DrawLine(x0-a+a_temp, y0+b-b_temp, x0-a+a_temp, y0-b+b_temp, !mode);
+		OLED_DrawLine(x0+a-a_temp, y0+b-b_temp, x0+a-a_temp, y0-b+b_temp, !mode);
+		{
+			p.x = 0; p.y = b_temp;
+			d1 = b * b + a * a * (-b + 0.25);
+			OLED_Draw_4_Pixels_Spread_Out_From_Center(x0, y0, x0+p.x, y0+p.y, a-a_temp, b-b_temp, !mode);
+			while (b * b * (p.x + 1) < a * a * (p.y - 0.5))
+			{
+				if (d1 <= 0)
+				{
+					d1 += b * b * (2 * p.x + 3);
+					p.x++;
+				}
+				else
+				{
+					d1 += (b * b * (2 * p.x + 3) + a * a * (-2 * p.y + 2));
+					p.x++;
+					p.y--;
+				}
+				OLED_Draw_4_Pixels_Spread_Out_From_Center(x0, y0, x0+p.x, y0+p.y, a-a_temp, b-b_temp, !mode);
+			}
+			float d2 = b * b * (p.x + 0.5) * (p.x + 0.5) + a * a * (p.y - 1) * (p.y - 1) - a * a * b * b;
+			while (p.y > 0)
+			{
+				if (d2 <= 0)
+				{
+					d2 += b * b * (2 * p.x + 2) + a * a * (-2 * p.y + 3);
+					p.x++;
+					p.y--;
+				}
+				else
+				{
+					d2 += a * a * (-2 * p.y + 3);
+					p.y--;
+				}
+				OLED_Draw_4_Pixels_Spread_Out_From_Center(x0, y0, x0+p.x, y0+p.y, a-a_temp, b-b_temp, !mode);
+			}
+		}
+		if(a_temp<a) a_temp++;
+		if(b_temp<a) b_temp++;
 	}
 }
 
@@ -336,15 +454,15 @@ void OLED_Show_Filling_Circle_to_Whole_Screen(u8 const x0, u8 const y0, u8 const
 	}
 }
 
-void OLED_Show_Rotating_Ellipse(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode)
+void OLED_Show_Rotating_Ellipse(u8 const x0, u8 const y0, u8 const a, u8 const b, u16 const angle, u8 mode)
 {
-	uint16_t angle;
+	uint16_t i;
 	
-	for(angle=0; angle<360; angle++)
+	for(i=0; i<angle; i++)
 	{
-		OLED_DrawEllipse_Rotate(x0, y0, a, b, angle, mode);
+		OLED_DrawEllipse_Rotate(x0, y0, a, b, i, mode);
 		OLED_Refresh_Gram();
-		OLED_DrawEllipse_Rotate(x0, y0, a, b, angle, !mode);
+		OLED_DrawEllipse_Rotate(x0, y0, a, b, i, !mode);
 	}
 }
 
@@ -380,3 +498,20 @@ void OLED_Show_Rotating_Telescoping_Two_Vertical_Ellipses(u8 const x0, u8 const 
 }
 
 /* --------------- 动画 --------------- */
+
+/* --------------- 组合 --------------- */
+
+void Demo_01(void)
+{
+	OLED_Show_Shrinking_Cube(63, 31, 60, 30, FILL);
+	OLED_Show_Cube_to_Circle(63, 31, 60, 30, FILL);
+	OLED_Show_Cube_Catched_by_Elliipse(63, 31, 30, 20, FILL);
+	OLED_Show_Rotating_Ellipse(63, 31, 30, 20, 180, FILL);
+	OLED_Show_Rotating_Two_Vertical_Ellipses(63, 31, 30, 20, FILL);
+	OLED_Show_Rotating_Telescoping_Two_Vertical_Ellipses(63, 31, 30, 20, FILL);
+	OLED_Show_Sliding_Door(63, 31, 60, 30, FILL);
+	OLED_Show_Cube_to_LikeCircle(63, 31, 60, 30, FILL);
+	OLED_Show_DNA(63, 31, 60, 30, FILL);
+}
+
+/* --------------- 组合 --------------- */
