@@ -25,14 +25,14 @@
 #include "math.h"
 //OLED的显存
 //存放格式如下.
-//[0]0 1 2 3 ... 127	
-//[1]0 1 2 3 ... 127	
-//[2]0 1 2 3 ... 127	
-//[3]0 1 2 3 ... 127	
-//[4]0 1 2 3 ... 127	
-//[5]0 1 2 3 ... 127	
-//[6]0 1 2 3 ... 127	
-//[7]0 1 2 3 ... 127
+// 0 -> [7]0 1 2 3 ... 127
+// 1 -> [6]0 1 2 3 ... 127
+// 2 -> [5]0 1 2 3 ... 127
+// 3 -> [4]0 1 2 3 ... 127
+// 4 -> [3]0 1 2 3 ... 127
+// 5 -> [2]0 1 2 3 ... 127
+// 6 -> [1]0 1 2 3 ... 127
+// 7 -> [0]0 1 2 3 ... 127
 u8 OLED_GRAM[OLED_COL_MAX][OLED_PAGE_MAX];
 
 //m^n
@@ -115,6 +115,23 @@ void OLED_DrawPoint(u8 x,u8 y,u8 mode)
 	OLED_Refresh_Gram();
 #endif
 }
+
+//OLED读点
+int8_t OLED_ReadPoint(u8 x,u8 y)
+{
+	u8 pos,bx,temp;
+	if(x>OLED_COL_MAX-1||y>OLED_ROW_MAX-1)return -1;
+	pos=7-y/8;
+	bx=y%8;
+	temp=1<<(7-bx);
+	if(OLED_GRAM[x][pos]&temp) return 1;
+	else return 0;
+}
+
+//bool OLED_ReadPoint_by_CMD(u8 x, u8 y)
+//{
+//	// only 6800 and 8080
+//}
 
 /* ---------------- base graphics ---------------- */
 
@@ -281,6 +298,7 @@ void OLED_DrawCube(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode)
 	OLED_DrawLine(x2,y1,x2,y2,mode);
 }
 
+
 /**
  * @brief OLED画标准圆角矩形
  * @method 先按照矩形的画法画出一个缺角矩形，然后按照画圆的方法画出四个圆角
@@ -289,6 +307,50 @@ void OLED_DrawCube(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode)
  * @param r 圆角矩形的圆角的半径
  */
 void OLED_Draw_Rounded_Cube(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
+{
+	Point p1, p2;
+	
+	p1.x = x0-a/2; p1.y = y0-b/2;
+	p2.x = x0+a/2; p2.y = y0+b/2;
+	
+	//防止圆角溢出
+	if(r>a/2 || r>b/2) r = (a<b)?(a/2):(b/2);
+	
+	//画缺角矩形
+	OLED_DrawLine( p1.x+r,	p2.y,	p2.x-r,	p2.y,	mode );  // 上
+	OLED_DrawLine( p1.x+r,	p1.y,	p2.x-r,	p1.y,	mode );  // 下
+	OLED_DrawLine( p1.x,	p2.y-r,	p1.x,	p1.y+r,	mode );  // 左
+	OLED_DrawLine( p2.x,	p2.y-r,	p2.x,	p1.y+r,	mode );  // 右
+	
+	//画圆角
+	Point p = {
+		.x = 0,
+		.y = r
+	};
+	// 因为取点是一区域
+	OLED_Draw_8_Pixels_Spread_Out_From_Center(x0, y0, p.x+x0, p.y+y0, a/2-r, b/2-r, mode);
+	int8_t d = 1 - r;
+	for(p.x=1; p.x<=p.y; p.x++)
+	{
+		if(d<0){				/* goEast */
+			d += 2 * p.x + 1;
+		}
+		else{					/* goSouthEast */
+			p.y--;
+			d += 2 * (p.x - p.y) + 1;
+		}
+		OLED_Draw_8_Pixels_Spread_Out_From_Center(x0, y0, p.x+x0, p.y+y0, a/2-r, b/2-r, mode);
+	}
+}
+
+/**
+ * @brief OLED画标准圆角矩形，使用擦除法
+ * @method 先按照矩形的画法画出一个缺角矩形，然后按照画圆的方法画出四个圆角
+ * @param (x0, y0) 矩形中心
+ * @param a,b 矩形的长和宽，默认长指的是上下边
+ * @param r 圆角矩形的圆角的半径
+ */
+void OLED_Draw_Rounded_Cube_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
 {
 	Point p1, p2;
 	
@@ -338,6 +400,52 @@ void OLED_Draw_Rounded_Cube(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
  * @param r 圆角矩形的圆角的半径
  */
 void OLED_Draw_Rounded_Cube_Fillet_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
+{
+	Point p1, p2;
+	
+	p1.x = x0-a/2; p1.y = y0-b/2;
+	p2.x = x0+a/2; p2.y = y0+b/2;
+	
+	//画缺角矩形
+	OLED_DrawCube( p1.x, p1.y, p2.x, p2.y, mode );
+	OLED_DrawLine( p1.x, p1.y, p1.x+r,	p1.y,	!mode);  // 上
+	OLED_DrawLine( p2.x, p1.y, p2.x-r,	p1.y,	!mode);
+	OLED_DrawLine( p1.x, p2.y, p1.x+r,	p2.y,	!mode);  // 下
+	OLED_DrawLine( p2.x, p2.y, p2.x-r,	p2.y,	!mode);
+	OLED_DrawLine( p1.x, p1.y, p1.x,	p1.y+r,	!mode);  // 左
+	OLED_DrawLine( p1.x, p2.y, p1.x,	p2.y-r,	!mode);
+	OLED_DrawLine( p2.x, p1.y, p2.x,	p1.y+r,	!mode);  // 右
+	OLED_DrawLine( p2.x, p2.y, p2.x,	p2.y-r,	!mode);
+	
+	//画圆角
+	Point p = {
+		.x = 0,
+		.y = r
+	};
+	// 因为取点是一区域
+	OLED_Draw_8_Pixels_Spread_Out_From_Center(x0, y0, p.x+x0, p.y+y0, a/2-r, b/2-r, mode);
+	int8_t d = 1 - r;
+	for(p.x=1; p.x<=p.y; p.x++)
+	{
+		if(d<0){				/* goEast */
+			d += 2 * p.x + 1;
+		}
+		else{					/* goSouthEast */
+			p.y--;
+			d += 2 * (p.x - p.y) + 1;
+		}
+		OLED_Draw_8_Pixels_Spread_Out_From_Center(x0, y0, p.x+x0, p.y+y0, a/2-r, b/2-r, mode);
+	}
+}
+
+/**
+ * @brief OLED画标准圆角矩形，但是圆角会溢出，使用的是擦除法
+ * @method 先按照矩形的画法画出一个缺角矩形，然后按照画圆的方法画出四个圆角
+ * @param (x0, y0) 矩形中心
+ * @param a,b 矩形的长和宽，默认长指的是上下边
+ * @param r 圆角矩形的圆角的半径
+ */
+void OLED_Draw_Rounded_Cube_Fillet_Overflow_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
 {
 	Point p1, p2;
 	
