@@ -1,13 +1,13 @@
 /******************************************************************************
-	Àµ√˜: 
+	ËØ¥Êòé: 
 	----------------------------------------------------------------
-	GND    µÁ‘¥µÿ
-	VCC  Ω”5VªÚ3.3vµÁ‘¥
-	D0   Ω”PA5£®SCL£©
-	D1   Ω”PA7£®SDA£©
-	RES  Ω”PB0
-	DC   Ω”PB1
-	CS   Ω”PA4               
+	GND    ÁîµÊ∫êÂú∞
+	VCC  Êé•5VÊàñ3.3vÁîµÊ∫ê
+	D0   Êé•PA5ÔºàSCLÔºâ
+	D1   Êé•PA7ÔºàSDAÔºâ
+	RES  Êé•PB0
+	DC   Êé•PB1
+	CS   Êé•PA4               
 	----------------------------------------------------------------
 ******************************************************************************/
 #include "sys.h"
@@ -29,4 +29,22 @@ void My_SPI_Init(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
  	GPIO_Init(GPIOB, &GPIO_InitStructure);
  	GPIO_SetBits(GPIOB,SPI_RST_Pin|SPI_DC_Pin);
+}
+
+void SPI_WR_Byte(u8 dat, u8 cmd)
+{
+	u8 i;
+	if(cmd) SPI_DC_Set();
+	else SPI_DC_Clr();
+	SPI_CS_Clr();
+	for(i=0;i<8;i++)
+	{
+		SPI_SCLK_Clr();
+		if(dat&0x80) SPI_SDIN_Set();
+		else SPI_SDIN_Clr();
+		SPI_SCLK_Set();
+		dat<<=1;   
+	}				 		  
+	SPI_CS_Set();
+	SPI_DC_Set();
 }
