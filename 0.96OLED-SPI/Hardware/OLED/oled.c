@@ -1167,7 +1167,7 @@ void OLED_ShowString(u8 x,u8 y,const u8 *p,u8 size,u8 mode)
 
 static void OLED_GPIO_Init(void)
 {
-	My_SPI_GPIO_Init();
+	SPI_GPIO_Init();
 }
 
 //初始化OLED
