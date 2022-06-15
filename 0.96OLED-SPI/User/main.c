@@ -9,7 +9,7 @@ int main()
 {
 	delay_init();
 	LED_Init();
-	OLED_SPI_Init();
+	OLED_Init();
 	
 	OLED_Clear();
 	
