@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "delay.h"
 #include "led.h"
+#include "iic.h"
 #include "spi.h"
 #include "oled.h"
 #include "screen.h"
