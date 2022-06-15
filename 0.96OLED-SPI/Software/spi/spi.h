@@ -39,7 +39,7 @@
 
 /* ---------------- SPI端口定义 ---------------- */
 
-void My_SPI_GPIO_Init(void);
+void SPI_GPIO_Init(void);
 void SPI_WR_Byte(u8 dat, u8 cmd);
 
 #endif
