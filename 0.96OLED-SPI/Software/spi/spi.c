@@ -12,7 +12,7 @@
 ******************************************************************************/
 #include "sys.h"
 
-void My_SPI_Init(void)
+void My_SPI_GPIO_Init(void)
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
  	
