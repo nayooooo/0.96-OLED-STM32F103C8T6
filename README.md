@@ -15,3 +15,6 @@ en:
 2. Please look over spi.h to pick up imformation whitch is about how to wire.
 3. I put the engineering document in "Project" folder, and the "hex" file in the "./Project/Objects".
 4. You may look for macro definition used in precompiled instruction at its corresponding header file.
+
+更新日志：
+新增了IIC模式，但是效果很差     2022.06.15
