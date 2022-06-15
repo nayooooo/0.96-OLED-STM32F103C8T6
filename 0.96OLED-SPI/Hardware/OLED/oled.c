@@ -1165,15 +1165,15 @@ void OLED_ShowString(u8 x,u8 y,const u8 *p,u8 size,u8 mode)
 
 /* ---------------- inition ---------------- */
 
-static void OLED_SPI_GPIO_Init(void)
+static void OLED_GPIO_Init(void)
 {
-	My_SPI_Init();
+	My_SPI_GPIO_Init();
 }
 
 //初始化OLED
-void OLED_SPI_Init(void)
+void OLED_Init(void)
 {
-	OLED_SPI_GPIO_Init();
+	OLED_GPIO_Init();
 					  
 	OLED_WR_Byte(0xAE,OLED_CMD);
 	OLED_WR_Byte(0xD5,OLED_CMD);
