@@ -17,4 +17,4 @@ en:
 4. You may look for macro definition used in precompiled instruction at its corresponding header file.
 
 更新日志：
-新增了IIC模式，但是效果很差     2022.06.15
+新增了IIC模式，但是效果很差 --2022.06.15--
