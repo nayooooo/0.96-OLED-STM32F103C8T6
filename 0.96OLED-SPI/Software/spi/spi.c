@@ -1,3 +1,11 @@
+/**
+ * @file spi.c
+ * @author YEWANhub
+ * @brief 实现软件SPI
+ * @version V1.0.0
+ * @date 2022-06-10
+ * @encoding GB2312
+ */
 /******************************************************************************
 	说明: 
 	----------------------------------------------------------------
@@ -11,7 +19,16 @@
 	----------------------------------------------------------------
 ******************************************************************************/
 #include "sys.h"
+#include "stm32f10x_rcc.h"
+#include "stm32f10x_gpio.h"
+#include "stm32f10x_spi.h"
+#include "spi.h"
 
+/**
+ * @fn SPI_GPIO_Init
+ * @brief 初始化SPI
+ * @return None
+ */
 void SPI_GPIO_Init(void)
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
@@ -31,6 +48,12 @@ void SPI_GPIO_Init(void)
  	GPIO_SetBits(GPIOB,SPI_RST_Pin|SPI_DC_Pin);
 }
 
+/**
+ * @brief 主机向从机（SSD1306）写入一个字节
+ * @param dat 要写入的数据/命令
+ * @param cmd 数据/命令标志 0,表示命令;1,表示数据
+ * @return None
+ */
 void SPI_WR_Byte(u8 dat, u8 cmd)
 {
 	u8 i;

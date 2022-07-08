@@ -1,7 +1,17 @@
+/**
+ * @file oled.h
+ * @author YEWANhub
+ * @brief 实现OLED的驱动和一些基础图形的绘制
+ * @version V1.0.0
+ * @date 2022-06-10
+ * @encoding GB2312
+ * @details 1. 在绘制旋转图形时，角度参数是角度制
+ * @details 2. 若要修改OLED的接线方式，请修改spi.h中的SPI端口定义
+ */
 /******************************************************************************
 	说明: 
 	----------------------------------------------------------------
-	GND    电源地
+	GND  电源地
 	VCC  接5V或3.3v电源
 	D0   接PA5（SCL）
 	D1   接PA7（SDA）
@@ -15,47 +25,45 @@
 #include "sys.h"
 #include "stdlib.h"
 
-#define SLAVE_ADDRESS 0x78
+#define SLAVE_ADDRESS 0x78  /* 从机地址 */
 
-#define OLED_COL_MAX (128)
-#define OLED_ROW_MAX (64)
-#define OLED_PAGE_MAX (OLED_ROW_MAX/8)
-#define OLED_ROW_COL_MAX ((OLED_COL_MAX>OLED_ROW_MAX)?(OLED_COL_MAX):(OLED_ROW_MAX))
-#define OLED_ROW_COL_MIN ((OLED_COL_MAX<OLED_ROW_MAX)?(OLED_COL_MAX):(OLED_ROW_MAX))
+#define OLED_COL_MAX (128)				/* OLED列数 */
+#define OLED_ROW_MAX (64)				/* OLED行数 */
+#define OLED_PAGE_MAX (OLED_ROW_MAX/8)	/* OLED页数 */
+#define OLED_ROW_COL_MAX ((OLED_COL_MAX>OLED_ROW_MAX)?(OLED_COL_MAX):(OLED_ROW_MAX))  /* OLED行、列数中的最大值 */
+#define OLED_ROW_COL_MIN ((OLED_COL_MAX<OLED_ROW_MAX)?(OLED_COL_MAX):(OLED_ROW_MAX))  /* OLED行、列数中的最小值 */
 		     
-#define OLED_CMD  0
-#define OLED_DATA 1
-#define OLED_CMD_CHR 0x00
-#define OLED_DATA_CHR 0x40
+#define OLED_CMD  0  /* OLED写指令命令 */
+#define OLED_DATA 1  /* OLED写数据命令 */
 
-#define FILL 1
-#define CLEAR 0
+#define FILL 1		/* 填充1 */
+#define CLEAR 0		/* 填充0 */
 
 /* ---------------- OLED端口定义 ---------------- */
 
-#define OLED_SCLK_Clr()		SPI_SCLK_Clr()
-#define OLED_SCLK_Set()		SPI_SCLK_Set()
-#define OLED_SCLK_Pin		SPI_SCLK_Pin
+#define OLED_SCLK_Clr()		SPI_SCLK_Clr()	// CLK清除
+#define OLED_SCLK_Set()		SPI_SCLK_Set()	// CLK置位
+#define OLED_SCLK_Pin		SPI_SCLK_Pin	// CLK引脚
 
-#define OLED_SDIN_Clr()		SPI_SDIN_Clr()
-#define OLED_SDIN_Set()		SPI_SDIN_Set()
-#define OLED_SDIN_Pin		SPI_SDIN_Pin
+#define OLED_SDIN_Clr()		SPI_SDIN_Clr()	// DIN清除
+#define OLED_SDIN_Set()		SPI_SDIN_Set()	// DIN置位
+#define OLED_SDIN_Pin		SPI_SDIN_Pin	// DIN引脚
 
-#define OLED_RST_Clr()		SPI_RST_Clr()
-#define OLED_RST_Set()		SPI_RST_Set()
-#define OLED_RST_Pin		SPI_RST_Pin
+#define OLED_RST_Clr()		SPI_RST_Clr()	// RSE清除
+#define OLED_RST_Set()		SPI_RST_Set()	// RSE置位
+#define OLED_RST_Pin		SPI_RST_Pin		// RSE引脚
 
-#define OLED_DC_Clr()		SPI_DC_Clr()
-#define OLED_DC_Set()		SPI_DC_Set()
-#define OLED_DC_Pin			SPI_DC_Pin
+#define OLED_DC_Clr()		SPI_DC_Clr()	// DC清除
+#define OLED_DC_Set()		SPI_DC_Set()	// DC置位
+#define OLED_DC_Pin			SPI_DC_Pin		// DC引脚
  		                
-#define OLED_CS_Clr()		SPI_CS_Clr()
-#define OLED_CS_Set()		SPI_CS_Set()
-#define OLED_CS_Pin			SPI_CS_Pin
+#define OLED_CS_Clr()		SPI_CS_Clr()	// CS清除
+#define OLED_CS_Set()		SPI_CS_Set()	// CS置位
+#define OLED_CS_Pin			SPI_CS_Pin		// CS引脚
 
 /* ---------------- OLED端口定义 ---------------- */
 
-/* ---------------- 结构体定义 ---------------- */
+/* ---------------- 点结构体定义 ---------------- */
 
 typedef struct
 {
@@ -94,17 +102,12 @@ typedef struct
 	uint8_t r;
 }Circle;
 
-/* ---------------- 结构体定义 ---------------- */
+/* ---------------- 点结构体定义 ---------------- */
 
 /* ---------------- 函数实现方法定义 ---------------- */
-#define SHOW_EVERY_STEEP 0
-#define Stationary_Circle
-//#define Dynamic_Circle
-#define OLED_DRAW_LINE_BRESENHAM 1
-/*
-0 -> brasenham
-*/
-#define OLED_DRAW_ELLIPSE_METHOD 0
+#define SHOW_EVERY_STEEP 0  // 每变化一个点都将调用一次OLED_Refresh_Gram函数
+#define OLED_DRAW_LINE_BRESENHAM 1  // 使用brasenham方法画线，1，使用；0，禁用
+#define OLED_DRAW_ELLIPSE_BRESENHAM 1  // 使用brasenham方法画椭圆，1，使用；0，禁用
 /* ---------------- 函数实现方法定义 ---------------- */
 
 //OLED控制用函数
@@ -123,13 +126,13 @@ int8_t OLED_ReadPoint(u8 x,u8 y);
 
 void OLED_DrawLine(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode);
 void OLED_DrawLine_Angle(u8 x0, u8 y0, u8 lenght, u16 angle, u8 mode);
-void OLED_DrawCube(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode);
-void OLED_Draw_Filled_Cube(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode);
-void OLED_DrawCube_Intelligent_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 mode);
-void OLED_Draw_Rounded_Cube(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
-void OLED_Draw_Rounded_Cube_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
-void OLED_Draw_Rounded_Cube_Fillet_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
-void OLED_Draw_Rounded_Cube_Fillet_Overflow_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
+void OLED_DrawRectangle(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode);
+void OLED_Draw_Filled_Rectangle(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode);
+void OLED_DrawRectangle_Intelligent_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 mode);
+void OLED_Draw_Rounded_Rectangle(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
+void OLED_Draw_Rounded_Rectangle_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
+void OLED_Draw_Rounded_Rectangle_Fillet_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
+void OLED_Draw_Rounded_Rectangle_Fillet_Overflow_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode);
 
 void OLED_Draw_4_Pixels(u8 x0, u8 y0, u8 x, u8 y, u8 mode);
 void OLED_Draw_4_Pixels_Lines(u8 x0, u8 y0, u8 x, u8 y, u8 mode);
@@ -161,7 +164,3 @@ void OLED_ShowNum(u8 x,u8 y,u32 num,u8 len,u8 size,u8 mode);
 void OLED_ShowString(u8 x,u8 y,const u8 *p,u8 size,u8 mode);
 
 #endif
-	 
-
-
-

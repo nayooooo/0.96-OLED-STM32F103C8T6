@@ -1,3 +1,12 @@
+/**
+ * @file oled.c
+ * @author YEWANhub
+ * @brief 实现OLED的驱动和一些基础图形的绘制
+ * @version V1.0.0
+ * @date 2022-06-10
+ * @encoding GB2312
+ * @details 在绘制旋转图形时，角度参数是角度制
+ */
 /******************************************************************************
 	说明: 
 	----------------------------------------------------------------
@@ -10,6 +19,10 @@
 	CS   接PA4               
 	----------------------------------------------------------------
 ******************************************************************************/
+/**
+ * 以下为用xoy直角坐标系中的y=x，y=-x和坐标轴将其划分为8个区域后
+ * 得到的区域编号，在后续函数编写过程中会运用到
+ */
 /******************************************************************************
 
 			八		一
@@ -20,11 +33,13 @@
 ******************************************************************************/
 
 #include "sys.h"
-#include "oledfont.h"
 #include "stdlib.h"
 #include "math.h"
+#include "spi.h"
+#include "oled.h"
+#include "oledfont.h"
 //OLED的显存
-//存放格式如下.
+//存放格式如下（箭头左边为缓存数组的下标，右边为OLED页标）：
 // 0 -> [7]0 1 2 3 ... 127
 // 1 -> [6]0 1 2 3 ... 127
 // 2 -> [5]0 1 2 3 ... 127
@@ -33,7 +48,7 @@
 // 5 -> [2]0 1 2 3 ... 127
 // 6 -> [1]0 1 2 3 ... 127
 // 7 -> [0]0 1 2 3 ... 127
-//每个字节存储的数据对应于OLED，高位在y轴较大的方向
+//每个字节存储的数据对应于OLED，高位在y轴方向
 u8 OLED_GRAM[OLED_COL_MAX][OLED_PAGE_MAX];
 
 //m^n
@@ -44,15 +59,21 @@ u32 mypow(u8 m,u8 n)
 	return result;
 }
 
-//向SSD1106写入一个字节。
-//dat:要写入的数据/命令
-//cmd:数据/命令标志 0,表示命令;1,表示数据;
+/**
+ * @brief 主机向从机（SSD1306）写入一个字节
+ * @param[dat] 要写入的数据/命令
+ * @param[cmd] 数据/命令标志 0,表示命令;1,表示数据
+ * @return None
+ */
 static void OLED_WR_Byte(u8 dat,u8 cmd)
 {
 	SPI_WR_Byte(dat, cmd);   	  
 }
 
-//更新缓存到OLED
+/**
+ * @brief 更新缓存到SSD1306
+ * @return None
+ */
 void OLED_Refresh_Gram(void)
 {
 	u8 i,n;		    
@@ -65,7 +86,10 @@ void OLED_Refresh_Gram(void)
 	}   
 }
 
-//OLED开显示
+/**
+ * @brief OLED开显示
+ * @return None
+ */
 void OLED_Display_On(void)
 {
 	OLED_WR_Byte(0X8D,OLED_CMD);
@@ -73,7 +97,10 @@ void OLED_Display_On(void)
 	OLED_WR_Byte(0XAF,OLED_CMD);
 }
 
-//OLED关显示
+/**
+ * @brief OLED关显示
+ * @return None
+ */
 void OLED_Display_Off(void)
 {
 	OLED_WR_Byte(0X8D,OLED_CMD);
@@ -81,7 +108,10 @@ void OLED_Display_Off(void)
 	OLED_WR_Byte(0XAE,OLED_CMD);
 }
 
-//OLED清屏
+/**
+ * @brief OLED清屏
+ * @return None
+ */
 void OLED_Clear(void)  
 {  
 	u8 i,n;  
@@ -89,7 +119,14 @@ void OLED_Clear(void)
 	OLED_Refresh_Gram();
 }
 
-//OLED画点		   
+/**
+ * @brief OLED画点
+ * @details 若SHOW_EVERY_STEEP==1，则会在每一次调用该函数时进行刷新
+ * @param x 所绘制的点的横坐标
+ * @param y 所绘制的点的纵坐标
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_DrawPoint(u8 x,u8 y,u8 mode)
 {
 	u8 pos,bx,temp=0;
@@ -104,7 +141,13 @@ void OLED_DrawPoint(u8 x,u8 y,u8 mode)
 #endif
 }
 
-//OLED读点
+/**
+ * @brief OLED读点
+ * @details 读取的是此时的OLED_GRAM中的信息，因此不能反映此时的屏幕状态
+ * @param x 所读的点的横坐标
+ * @param y 所读的点的纵坐标
+ * @return int8_t 所读点的状态
+ */
 int8_t OLED_ReadPoint(u8 x,u8 y)
 {
 	u8 pos,bx,temp;
@@ -123,7 +166,16 @@ int8_t OLED_ReadPoint(u8 x,u8 y)
 
 /* ---------------- base graphics ---------------- */
 
-//OLED画线
+/**
+ * @brief OLED画线
+ * @details 可以改变OLED_DRAW_LINE_BRESENHAM的宏定义来选择实现方法
+ * @param x1 端点一的横坐标
+ * @param y1 端点一的纵坐标
+ * @param x2 端点二的横坐标
+ * @param y2 端点二的纵坐标
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_DrawLine(u8 x1,u8 y1,u8 x2,u8 y2,u8 mode)
 {
 #if OLED_DRAW_LINE_BRESENHAM
@@ -264,7 +316,15 @@ void OLED_DrawLine(u8 x1,u8 y1,u8 x2,u8 y2,u8 mode)
 #endif
 }
 
-//OLED角度画线
+/**
+ * @brief OLED角度画线（参数采用极坐标表示法）
+ * @param x0 极点的横坐标
+ * @param y0 极点的纵坐标
+ * @param lenght 直线的极径
+ * @param angle 直线的极角
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_DrawLine_Angle(u8 x0, u8 y0, u8 lenght, u16 angle, u8 mode)
 {
 	Point_Signed p;
@@ -277,8 +337,16 @@ void OLED_DrawLine_Angle(u8 x0, u8 y0, u8 lenght, u16 angle, u8 mode)
 	OLED_DrawLine(x0, y0, p.x+x0, p.y+y0, mode);
 }
 
-//OLED画方
-void OLED_DrawCube(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode)
+/**
+ * @brief OLED画方
+ * @param x1 方形某一对角线上的端点一的横坐标
+ * @param y1 方形某一对角线上的端点一的纵坐标
+ * @param x2 方形某一对角线上的端点二的横坐标
+ * @param y2 方形某一对角线上的端点二的纵坐标
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
+void OLED_DrawRectangle(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode)
 {
 	OLED_DrawLine(x1,y1,x2,y1,mode);
 	OLED_DrawLine(x1,y2,x2,y2,mode);
@@ -288,8 +356,16 @@ void OLED_DrawCube(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode)
 
 /**
  * @brief OLED画填充方
+ * @details 采用的填充方法是以y轴方向为填充方向，遍历(y1:y2+1)填充直线
+ * @details 因此矩形边不平行于坐标轴时，会存在没有填充上的情况
+ * @param x1 方形某一对角线上的端点一的横坐标
+ * @param y1 方形某一对角线上的端点一的纵坐标
+ * @param x2 方形某一对角线上的端点二的横坐标
+ * @param y2 方形某一对角线上的端点二的纵坐标
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
-void OLED_Draw_Filled_Cube(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode)
+void OLED_Draw_Filled_Rectangle(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode)
 {
 	uint8_t i;
 	
@@ -301,12 +377,16 @@ void OLED_Draw_Filled_Cube(u8 x1,u8 y1,u8 x2,u8 y2, u8 mode)
 }
 
 /**
- * @brief OLED画方，智能处理溢出屏幕，具有一定的容错率
- * @method 如果边会溢出屏幕，将智能处理几何中心
- * @param (x0, y0) 矩形中心
- * @param (a, b) 矩形的长和宽，默认长指的是上下边
+ * @brief OLED画方，智能处理溢出屏幕，具有一定的容错率，以中心点为坐标原点
+ * @details 如果矩形边会溢出屏幕，将智能处理几何中心
+ * @param x0 矩形中心的横坐标
+ * @param y0 矩形中心的纵坐标
+ * @param a 矩形的上下边的长
+ * @param b 矩形的左右边的长
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
-void OLED_DrawCube_Intelligent_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 mode)
+void OLED_DrawRectangle_Intelligent_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 mode)
 {
 	uint8_t Overflow_Flag = 0X00;  // 0, 1, 2, 3bit 分别表示行低高位溢出、列低高位溢出
 	Point p1, p2;
@@ -348,13 +428,17 @@ void OLED_DrawCube_Intelligent_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 mode)
 }
 
 /**
- * @brief OLED画标准圆角矩形
+ * @brief OLED画标准圆角矩形，预留圆角区域，以中心点为坐标原点
  * @method 先按照矩形的画法画出一个缺角矩形，然后按照画圆的方法画出四个圆角
- * @param (x0, y0) 矩形中心
- * @param (a, b) 矩形的长和宽，默认长指的是上下边
+ * @param x0 圆角矩形中心的横坐标
+ * @param y0 圆角矩形中心的纵坐标
+ * @param a 圆角矩形的上下边的长
+ * @param b 圆角矩形的左右边的长
  * @param r 圆角矩形的圆角的半径
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
-void OLED_Draw_Rounded_Cube(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
+void OLED_Draw_Rounded_Rectangle(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
 {
 	Point p1, p2;
 	
@@ -392,13 +476,17 @@ void OLED_Draw_Rounded_Cube(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
 }
 
 /**
- * @brief OLED画标准圆角矩形，使用擦除法
+ * @brief OLED画标准圆角矩形，使用擦除法，以中心点为坐标原点
  * @method 先按照矩形的画法画出一个缺角矩形，然后按照画圆的方法画出四个圆角
- * @param (x0, y0) 矩形中心
- * @param a,b 矩形的长和宽，默认长指的是上下边
+ * @param x0 圆角矩形中心的横坐标
+ * @param y0 圆角矩形中心的纵坐标
+ * @param a 圆角矩形的上下边的长
+ * @param b 圆角矩形的左右边的长
  * @param r 圆角矩形的圆角的半径
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
-void OLED_Draw_Rounded_Cube_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
+void OLED_Draw_Rounded_Rectangle_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
 {
 	Point p1, p2;
 	
@@ -409,7 +497,7 @@ void OLED_Draw_Rounded_Cube_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mo
 	if(r>a/2 || r>b/2) r = (a<b)?(a/2):(b/2);
 	
 	//画缺角矩形
-	OLED_DrawCube( p1.x, p1.y, p2.x, p2.y, mode );
+	OLED_DrawRectangle( p1.x, p1.y, p2.x, p2.y, mode );
 	OLED_DrawLine( p1.x, p1.y, p1.x+r,	p1.y,	!mode);  // 上
 	OLED_DrawLine( p2.x, p1.y, p2.x-r,	p1.y,	!mode);
 	OLED_DrawLine( p1.x, p2.y, p1.x+r,	p2.y,	!mode);  // 下
@@ -441,13 +529,17 @@ void OLED_Draw_Rounded_Cube_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mo
 }
 
 /**
- * @brief OLED画标准圆角矩形，但是圆角会溢出
+ * @brief OLED画标准圆角矩形，但是圆角会溢出，以中心点为坐标原点
  * @method 先按照矩形的画法画出一个缺角矩形，然后按照画圆的方法画出四个圆角
- * @param (x0, y0) 矩形中心
- * @param a,b 矩形的长和宽，默认长指的是上下边
+ * @param x0 圆角矩形中心的横坐标
+ * @param y0 圆角矩形中心的纵坐标
+ * @param a 圆角矩形的上下边的长
+ * @param b 圆角矩形的左右边的长
  * @param r 圆角矩形的圆角的半径
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
-void OLED_Draw_Rounded_Cube_Fillet_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
+void OLED_Draw_Rounded_Rectangle_Fillet_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
 {
 	Point p1, p2;
 	
@@ -455,7 +547,7 @@ void OLED_Draw_Rounded_Cube_Fillet_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 m
 	p2.x = x0+a/2; p2.y = y0+b/2;
 	
 	//画缺角矩形
-	OLED_DrawCube( p1.x, p1.y, p2.x, p2.y, mode );
+	OLED_DrawRectangle( p1.x, p1.y, p2.x, p2.y, mode );
 	OLED_DrawLine( p1.x, p1.y, p1.x+r,	p1.y,	!mode);  // 上
 	OLED_DrawLine( p2.x, p1.y, p2.x-r,	p1.y,	!mode);
 	OLED_DrawLine( p1.x, p2.y, p1.x+r,	p2.y,	!mode);  // 下
@@ -487,13 +579,17 @@ void OLED_Draw_Rounded_Cube_Fillet_Overflow(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 m
 }
 
 /**
- * @brief OLED画标准圆角矩形，但是圆角会溢出，使用的是擦除法
+ * @brief OLED画标准圆角矩形，但是圆角会溢出，使用的是擦除法，以中心点为坐标原点
  * @method 先按照矩形的画法画出一个缺角矩形，然后按照画圆的方法画出四个圆角
- * @param (x0, y0) 矩形中心
- * @param a,b 矩形的长和宽，默认长指的是上下边
+ * @param x0 圆角矩形中心的横坐标
+ * @param y0 圆角矩形中心的纵坐标
+ * @param a 圆角矩形的上下边的长
+ * @param b 圆角矩形的左右边的长
  * @param r 圆角矩形的圆角的半径
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
-void OLED_Draw_Rounded_Cube_Fillet_Overflow_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
+void OLED_Draw_Rounded_Rectangle_Fillet_Overflow_Erasure_Method(u8 x0, u8 y0, u8 a, u8 b, u8 r, u8 mode)
 {
 	Point p1, p2;
 	
@@ -501,7 +597,7 @@ void OLED_Draw_Rounded_Cube_Fillet_Overflow_Erasure_Method(u8 x0, u8 y0, u8 a, u
 	p2.x = x0+a/2; p2.y = y0+b/2;
 	
 	//画缺角矩形
-	OLED_DrawCube( p1.x, p1.y, p2.x, p2.y, mode );
+	OLED_DrawRectangle( p1.x, p1.y, p2.x, p2.y, mode );
 	OLED_DrawLine( p1.x, p1.y, p1.x+r,	p1.y,	!mode);  // 上
 	OLED_DrawLine( p2.x, p1.y, p2.x-r,	p1.y,	!mode);
 	OLED_DrawLine( p1.x, p2.y, p1.x+r,	p2.y,	!mode);  // 下
@@ -533,9 +629,13 @@ void OLED_Draw_Rounded_Cube_Fillet_Overflow_Erasure_Method(u8 x0, u8 y0, u8 a, u
 }
 
 /**
- * @breief OLED放置 4 个像素
- * @param (x0, y0) 4个点的中心
- * @param (x, y) 4个点中的一个位于第一象限上的点
+ * @brief OLED放置 4 个像素，以中心点为坐标原点
+ * @param x0 4个点的中心的横坐标
+ * @param y0 4个点的中心的纵坐标
+ * @param x 4个点中的一个位于第一象限上的点的横坐标
+ * @param y 4个点中的一个位于第一象限上的点的纵坐标
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
 void OLED_Draw_4_Pixels(u8 x0, u8 y0, u8 x, u8 y, u8 mode)
 {
@@ -546,9 +646,13 @@ void OLED_Draw_4_Pixels(u8 x0, u8 y0, u8 x, u8 y, u8 mode)
 }
 
 /**
- * @breief OLED放置 2 条镜像线
- * @param (x0, y0) 4个端点的中心
- * @param (x, y) 4个端点中的一个位于第一象限上的点
+ * @brief OLED放置 2 条镜像线，这两条镜像线关于中心点处的x轴对称
+ * @param x0 4个点的中心的横坐标
+ * @param y0 4个点的中心的纵坐标
+ * @param x 4个端点中的一个位于第一象限上的点的横坐标
+ * @param y 4个端点中的一个位于第一象限上的点的纵坐标
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
 void OLED_Draw_4_Pixels_Lines(u8 x0, u8 y0, u8 x, u8 y, u8 mode)
 {
@@ -557,9 +661,14 @@ void OLED_Draw_4_Pixels_Lines(u8 x0, u8 y0, u8 x, u8 y, u8 mode)
 }
 
 /**
- * @breief OLED放置 4 个绕中心旋转的像素
- * @param (x0, y0) 4个点的中心
- * @param (x, y) 4个点中的一个位于第一象限上的点
+ * @brief OLED放置 4 个绕中心旋转的像素，以中心点为坐标原点
+ * @param x0 4个点的中心的横坐标
+ * @param y0 4个点的中心的纵坐标
+ * @param x 4个端点中的一个位于第一象限上的点的横坐标
+ * @param y 4个端点中的一个位于第一象限上的点的纵坐标
+ * @param angle 相对x轴的旋转角度（逆时针）
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
 // x' = xcosb - ysinb
 // y' = xsinb + ycosb
@@ -580,9 +689,14 @@ void OLED_Draw_4_Pixels_Rotate(u8 x0, u8 y0, int16_t x, int16_t y, u16 angle, u8
 }
 
 /**
- * @breief OLED画 2 条绕中心旋转镜像线
- * @param (x0, y0) 4个端点的中心
- * @param (x, y) 4个端点中的一个位于第一象限上的点
+ * @brief OLED画 2 条绕中心旋转镜像线，以中心点为坐标原点
+ * @param x0 4个点的中心的横坐标
+ * @param y0 4个点的中心的纵坐标
+ * @param x 4个端点中的一个位于第一象限上的点的横坐标
+ * @param y 4个端点中的一个位于第一象限上的点的纵坐标
+ * @param angle 相对x轴的旋转角度（逆时针）
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
 // x' = xcosb - ysinb
 // y' = xsinb + ycosb
@@ -602,9 +716,15 @@ void OLED_Draw_4_Pixels_Rotate_Lines(u8 x0, u8 y0, int16_t x, int16_t y, u16 ang
 
 /**
  * @brief 以某一点为中心绘制4个点，这4个点和中心点之间的距离为 (dx, dy)
- * @param (x0, y0) 对称中心
- * @param (x, y) 需要绘制的4个点中，位于一区域的点
- * @param (dx, dy) 偏移距离
+ * @details 偏移距离是想读与一区域上的点而言的
+ * @param x0 对称中心的横坐标
+ * @param y0 对称中心的纵坐标
+ * @param x 需要绘制的4个点中，位于一区域的点的横坐标
+ * @param y 需要绘制的4个点中，位于一区域的点的纵坐标
+ * @param dx 偏移距离的横轴分量
+ * @param dy 偏移距离的纵轴分量
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
 void OLED_Draw_4_Pixels_Spread_Out_From_Center(u8 x0, u8 y0, u8 x, u8 y, u8 dx, u8 dy, u8 mode)
 {
@@ -615,10 +735,15 @@ void OLED_Draw_4_Pixels_Spread_Out_From_Center(u8 x0, u8 y0, u8 x, u8 y, u8 dx, 
 }
 
 /**
- * @breief OLED放置 8 个像素
- * @param (x0, y0) 8个点的中心
- * @param (x, y) 8个点中的一个位于一区域上的点
- * --------------------------------------------------- *
+ * @brief OLED放置 8 个像素
+ * @param x0 8个点的中心的横坐标
+ * @param y0 8个点的中心的纵坐标
+ * @param x 8个端点中的一个位于一区域上的点的横坐标
+ * @param y 8个端点中的一个位于一区域上的点的纵坐标
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
+/* --------------------------------------------------- *
  * 一	x = x,					y = y
  * 二	x = y -y0+x0,			y = x-x0+y0
  * 三	x = y-y0+x0,			y = 2*y0-(x-x0+y0)
@@ -642,9 +767,14 @@ void OLED_Draw_8_Pixels(u8 x0, u8 y0, u8 x, u8 y, u8 mode)
 }
 
 /**
- * @breief OLED放置 4 条镜像线
- * @param (x0, y0) 8个端点的中心
- * @param (x, y) 8个端点中的一个位于第一象限上的点
+ * @brief OLED放置 4 条镜像线，这 4 条镜像线关于中心点处的x轴对称
+ * @details 一区域中的点的特点是：dy>dx>0
+ * @param x0 8个点的中心的横坐标
+ * @param y0 8个点的中心的纵坐标
+ * @param x 8个端点中的一个位于一区域上的点的横坐标
+ * @param y 8个端点中的一个位于一区域上的点的纵坐标
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
 void OLED_Draw_8_Pixels_Lines(u8 x0, u8 y0, u8 x, u8 y, u8 mode)
 {
@@ -656,9 +786,15 @@ void OLED_Draw_8_Pixels_Lines(u8 x0, u8 y0, u8 x, u8 y, u8 mode)
 
 /**
  * @brief 以某一点为中心绘制8个点，这八个点和中心点之间的距离为 (dx, dy)
- * @param (x0, y0) 对称中心
- * @param (x, y) 需要绘制的8个点中，位于一区域的点
- * @param (dx, dy) 偏移距离
+ * @details 偏移距离是想读与一区域上的点而言的
+ * @param x0 对称中心的横坐标
+ * @param y0 对称中心的纵坐标
+ * @param x 8个端点中的一个位于一区域上的点的横坐标
+ * @param y 8个端点中的一个位于一区域上的点的纵坐标
+ * @param dx 偏移距离的横轴分量
+ * @param dy 偏移距离的纵轴分量
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
 void OLED_Draw_8_Pixels_Spread_Out_From_Center(u8 x0, u8 y0, u8 x, u8 y, u8 dx, u8 dy, u8 mode)
 {
@@ -673,9 +809,14 @@ void OLED_Draw_8_Pixels_Spread_Out_From_Center(u8 x0, u8 y0, u8 x, u8 y, u8 dx, 
 }
 
 /**
- * @breief OLED放置 8 个绕中心旋转的像素
- * @param (x0, y0) 8个点的中心
- * @param (x, y) 8个点中的一个位于第一象限上的点
+ * @brief OLED放置 8 个绕中心旋转的像素，以中心点为坐标原点
+ * @param x0 8个点的中心的横坐标
+ * @param y0 8个点的中心的纵坐标
+ * @param x 8个端点中的一个位于一区域上的点的横坐标
+ * @param y 8个端点中的一个位于一区域上的点的纵坐标
+ * @param angle 相对x轴的旋转角度（逆时针）
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
 // x' = xcosb - ysinb
 // y' = xsinb + ycosb
@@ -705,7 +846,15 @@ void OLED_Draw_8_Pixels_Rotate(u8 x0, u8 y0, int16_t x, int16_t y, u16 angle, u8
 	OLED_DrawPoint( _x_x_x_X_c-y_Y_s		+x0,	_x_x_x_X_s+y_Y_c		+y0,	mode );				/* 八 */
 }
 
-//OLED画圆
+/**
+ * @brief OLED画圆
+ * @method brasenham方法
+ * @param x0 圆心的横坐标
+ * @param y0 圆心的纵坐标
+ * @param r 圆的半径
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_DrawCircle(u8 x0, u8 y0, u8 r, u8 mode)
 {
 	Point p = {
@@ -727,7 +876,15 @@ void OLED_DrawCircle(u8 x0, u8 y0, u8 r, u8 mode)
 	}
 }
 
-//OLED画填充圆
+/**
+ * @brief OLED画填充圆
+ * @method brasenham方法
+ * @param x0 圆心的横坐标
+ * @param y0 圆心的纵坐标
+ * @param r 圆的半径
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_Draw_Filled_Circle(u8 x0, u8 y0, u8 r, u8 mode)
 {
 	Point p = {
@@ -750,18 +907,31 @@ void OLED_Draw_Filled_Circle(u8 x0, u8 y0, u8 r, u8 mode)
 }
 
 /**
- * @brief OLED画任意弧段
- * @param (x0, y0) 弧段圆心
+ * @brief OLED画任意弧段，以圆心为坐标原点
+ * @param x0 弧段圆心的横坐标
+ * @param y0 弧段圆心的纵坐标
  * @param r 弧段半径
- * @param alpha 弧段圆心角
+ * @param thet 弧段圆心角
+ * @param angle 弧段相对于x轴的旋转角度（逆时针）（角度制）
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
-void OLED_DrawArc(u8 x0, u8 y0, u8 r, u8 alpha, u8 mode)
+void OLED_DrawArc(u8 x0, u8 y0, u8 r, u8 thet, u8 angle, u8 mode)
 {}
 
-//OLED画标准椭圆
+/**
+ * @brief OLED画标准椭圆
+ * @method brasenham方法
+ * @param x0 椭圆中心的横坐标
+ * @param y0 椭圆中心的纵坐标
+ * @param a 椭圆的长半轴长
+ * @param b 椭圆的短半轴长
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_DrawEllipse(u8 x0, u8 y0, u8 a, u8 b, u8 mode)
 {
-#if OLED_DRAW_ELLIPSE_METHOD==0
+#if OLED_DRAW_ELLIPSE_BRESENHAM
 	/* --------------- Bresenham --------------- */
 	Point_Signed p = { .x = 0, .y = b };
 	float d1 = b * b + a * a * (-b + 0.25);
@@ -802,10 +972,18 @@ void OLED_DrawEllipse(u8 x0, u8 y0, u8 a, u8 b, u8 mode)
 #endif
 }
 
-//OLED画标准填充椭圆
+/**
+ * @brief OLED画标准填充椭圆
+ * @param x0 椭圆中心的横坐标
+ * @param y0 椭圆中心的纵坐标
+ * @param a 椭圆的长半轴长
+ * @param b 椭圆的短半轴长
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_Draw_Filled_Ellipse(u8 x0, u8 y0, u8 a, u8 b, u8 mode)
 {
-#if OLED_DRAW_ELLIPSE_METHOD==0
+#if OLED_DRAW_ELLIPSE_BRESENHAM
 	/* --------------- Bresenham --------------- */
 	Point_Signed p = { .x = 0, .y = b };
 	float d1 = b * b + a * a * (-b + 0.25);
@@ -846,10 +1024,18 @@ void OLED_Draw_Filled_Ellipse(u8 x0, u8 y0, u8 a, u8 b, u8 mode)
 #endif
 }
 
-//OLED画两个相互垂直的标准椭圆
+/**
+ * @brief OLED画两个相互垂直的标准椭圆
+ * @param x0 两个椭圆中心的横坐标
+ * @param y0 两个椭圆中心的纵坐标
+ * @param a 两个椭圆的长半轴长
+ * @param b 两个椭圆的短半轴长
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_Draw_Two_Vertical_Ellipses(u8 x0, u8 y0, u8 a, u8 b, u8 mode)
 {
-#if OLED_DRAW_ELLIPSE_METHOD==0
+#if OLED_DRAW_ELLIPSE_BRESENHAM
 	/* --------------- Bresenham --------------- */
 	Point_Signed p = { .x = 0, .y = b };
 	float d1 = b * b + a * a * (-b + 0.25);
@@ -890,12 +1076,22 @@ void OLED_Draw_Two_Vertical_Ellipses(u8 x0, u8 y0, u8 a, u8 b, u8 mode)
 #endif
 }
 
-//OLED画非标准椭圆
+/**
+ * @brief OLED画非标准椭圆
+ * @method brasenham方法
+ * @param x0 椭圆中心的横坐标
+ * @param y0 椭圆中心的纵坐标
+ * @param a 椭圆的长半轴长
+ * @param b 椭圆的短半轴长
+ * @param angle 相对于x轴的旋转角度（逆时针）（角度制）
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 // x' = xcosb - ysinb
 // y' = xsinb + ycosb
 void OLED_DrawEllipse_Rotate(u8 x0, u8 y0, u8 a, u8 b, u16 angle, u8 mode)
 {
-#if OLED_DRAW_ELLIPSE_METHOD==0
+#if OLED_DRAW_ELLIPSE_BRESENHAM
 	/* --------------- Bresenham --------------- */
 	Point_Signed p = { .x = 0, .y = b };
 	float d1 = b * b + a * a * (-b + 0.25);
@@ -936,12 +1132,21 @@ void OLED_DrawEllipse_Rotate(u8 x0, u8 y0, u8 a, u8 b, u16 angle, u8 mode)
 #endif
 }
 
-//OLED画非标准填充椭圆
+/**
+ * @brief OLED画非标准椭圆
+ * @param x0 椭圆中心的横坐标
+ * @param y0 椭圆中心的纵坐标
+ * @param a 椭圆的长半轴长
+ * @param b 椭圆的短半轴长
+ * @param angle 相对于x轴的旋转角度（逆时针）（角度制）
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 // x' = xcosb - ysinb
 // y' = xsinb + ycosb
 void OLED_Draw_Filled_Ellipse_Rotate(u8 x0, u8 y0, u8 a, u8 b, u16 angle, u8 mode)
 {
-#if OLED_DRAW_ELLIPSE_METHOD==0
+#if OLED_DRAW_ELLIPSE_BRESENHAM
 	/* --------------- Bresenham --------------- */
 	Point_Signed p = { .x = 0, .y = b };
 	float d1 = b * b + a * a * (-b + 0.25);
@@ -982,12 +1187,21 @@ void OLED_Draw_Filled_Ellipse_Rotate(u8 x0, u8 y0, u8 a, u8 b, u16 angle, u8 mod
 #endif
 }
 
-//OLED画两个相互垂直的非标准椭圆
+/**
+ * @brief OLED画两个相互垂直的非标准椭圆
+ * @param x0 两个椭圆中心的横坐标
+ * @param y0 两个椭圆中心的纵坐标
+ * @param a 两个椭圆的长半轴长
+ * @param b 两个椭圆的短半轴长
+ * @param angle 相对于x轴的旋转角度（逆时针）（角度制）
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 // x' = xcosb - ysinb
 // y' = xsinb + ycosb
 void OLED_Draw_Two_Vertical_Ellipses_Rotate(u8 x0, u8 y0, u8 a, u8 b, u16 angle, u8 mode)
 {
-#if OLED_DRAW_ELLIPSE_METHOD==0
+#if OLED_DRAW_ELLIPSE_BRESENHAM
 	/* --------------- Bresenham --------------- */
 	Point_Signed p = { .x = 0, .y = b };
 	float d1 = b * b + a * a * (-b + 0.25);
@@ -1030,8 +1244,11 @@ void OLED_Draw_Two_Vertical_Ellipses_Rotate(u8 x0, u8 y0, u8 a, u8 b, u16 angle,
 
 /**
  * @brief OLED画一个努诺三角形
- * @param (x0, y0) 几何中心
- * @param r 努诺三角形边长
+ * @param x0 几何中心的横坐标
+ * @param y0 几何中心的纵坐标
+ * @param r 努诺三角形边长对应弧段的半径
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
 void OLED_Draw_Nuno_Triangle(u8 x0, u8 y0, u8 r, u8 mode)
 {}
@@ -1047,9 +1264,12 @@ void OLED_Draw_Nuno_Triangle(u8 x0, u8 y0, u8 r, u8 mode)
 /**
  * @brief OLED画鱼
  * @method 鱼尾用三角形表示，鱼身用部分椭圆表示，鱼头用努诺三角形表示
- * @param (x0, y0) 鱼所在矩形的几何中心
+ * @param x0 鱼所在矩形的几何中心的横坐标
+ * @param y0 鱼所在矩形的几何中心的纵坐标
  * @param size 鱼的大小，指鱼的长度
  * @param dir 鱼头的方向，false 表示向左，true 表示向右
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
  */
 void OLED_Draw_Fish(u8 x0, u8 y0, u8 size, bool dir, u8 mode)
 {}
@@ -1058,7 +1278,16 @@ void OLED_Draw_Fish(u8 x0, u8 y0, u8 size, bool dir, u8 mode)
 
 /* ---------------- message ---------------- */
 
-//OLED画BMP
+/**
+ * @brief OLED画BMP
+ * @param x BMP的左上角的顶点的横坐标
+ * @param y BMP的左上角的顶点的纵坐标
+ * @param p BMP数组的首地址
+ * @param width BMP的宽度
+ * @param height BMP的高度
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_ShowBMP(u8 x,u8 y,const u8 *p,u8 width,u8 height,u8 mode)
 {
 	u8 u_x, u_y;
@@ -1088,7 +1317,16 @@ void OLED_ShowBMP(u8 x,u8 y,const u8 *p,u8 width,u8 height,u8 mode)
 	}
 }
 
-//OLED填充
+/**
+ * @brief OLED填充区块
+ * @details 执行完此函数后直接更新OLED
+ * @param x1 区块的一个对角线的端点一的横坐标
+ * @param y1 区块的一个对角线的端点一的纵坐标
+ * @param x2 区块的一个对角线的端点二的横坐标
+ * @param y2 区块的一个对角线的端点二的纵坐标
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_Fill(u8 x1,u8 y1,u8 x2,u8 y2,u8 mode)
 {  
 	u8 x,y;  
@@ -1099,7 +1337,15 @@ void OLED_Fill(u8 x1,u8 y1,u8 x2,u8 y2,u8 mode)
 	OLED_Refresh_Gram();
 }
 
-//OLED显示字符
+/**
+ * @brief OLED显示字符
+ * @param x 字符的左上角的顶点的横坐标
+ * @param y 字符的左上角的顶点的纵坐标
+ * @param chr 需要显示的字符
+ * @param size 字符的大小，有12、15、24可选
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_ShowChar(u8 x,u8 y,u8 chr,u8 size,u8 mode)
 {      			    
 	u8 temp,t,t1;
@@ -1128,7 +1374,16 @@ void OLED_ShowChar(u8 x,u8 y,u8 chr,u8 size,u8 mode)
     }          
 }
 
-//OLED显示数字
+/**
+ * @brief OLED显示数字
+ * @param x 数字的左上角的顶点的横坐标
+ * @param y 数字的左上角的顶点的纵坐标
+ * @param num 需要显示的数字
+ * @param len 数字的位数
+ * @param size 数字的大小，有12、15、24可选
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_ShowNum(u8 x,u8 y,u32 num,u8 len,u8 size,u8 mode)
 {         	
 	u8 t,temp;
@@ -1149,7 +1404,15 @@ void OLED_ShowNum(u8 x,u8 y,u32 num,u8 len,u8 size,u8 mode)
 	}
 }
 
-//OLED显示字符串
+/**
+ * @brief OLED显示字符串
+ * @param x 字符串的左上角的顶点的横坐标
+ * @param y 字符串的左上角的顶点的纵坐标
+ * @param p 需要显示的字符串的首地址
+ * @param size 字符串的大小，有12、15、24可选
+ * @param mode 绘制模式，FILL，填充1；CLEAR，填充0
+ * @return None
+ */
 void OLED_ShowString(u8 x,u8 y,const u8 *p,u8 size,u8 mode)
 {	
     while((*p<='~')&&(*p>=' '))
@@ -1166,12 +1429,19 @@ void OLED_ShowString(u8 x,u8 y,const u8 *p,u8 size,u8 mode)
 
 /* ---------------- inition ---------------- */
 
+/**
+ * @brief 初始化OLED相关IO
+ * @return None
+ */
 static void OLED_GPIO_Init(void)
 {
 	SPI_GPIO_Init();
 }
 
-//初始化OLED
+/**
+ * @brief 初始化OLED
+ * @return None
+ */
 void OLED_Init(void)
 {
 	OLED_GPIO_Init();

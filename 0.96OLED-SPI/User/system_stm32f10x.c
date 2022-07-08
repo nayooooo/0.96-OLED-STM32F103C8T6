@@ -1,9 +1,9 @@
 /**
   ******************************************************************************
-  * @file    GPIO/IOToggle/system_stm32f10x.c
+  * @file    system_stm32f10x.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    08-April-2011
+  * @version V3.5.1
+  * @date    08-September-2021
   * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer System Source File.
   * 
   * 1.  This file provides two functions and one global variable to be called from 
@@ -30,7 +30,7 @@
   *    function will do nothing and HSI still used as system clock source. User can 
   *    add some code to deal with this issue inside the SetSysClock() function.
   *
-  * 4. The default value of HSE crystal is set to 8 MHz (or 25 MHz, depedning on
+  * 4. The default value of HSE crystal is set to 8 MHz (or 25 MHz, depending on
   *    the product used), refer to "HSE_VALUE" define in "stm32f10x.h" file. 
   *    When HSE is used as system clock source, directly or through PLL, and you
   *    are using different crystal you have to adapt the HSE value to your own
@@ -39,14 +39,13 @@
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * Copyright (c) 2011 STMicroelectronics.
+  * All rights reserved.
   *
-  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
   ******************************************************************************
   */
 
@@ -294,7 +293,7 @@ void SystemInit (void)
   *             in voltage and temperature.   
   *    
   *         (**) HSE_VALUE is a constant defined in stm32f1xx.h file (default value
-  *              8 MHz or 25 MHz, depedning on the product used), user has to ensure
+  *              8 MHz or 25 MHz, depending on the product used), user has to ensure
   *              that HSE_VALUE is same as the real frequency of the crystal used.
   *              Otherwise, this function may have wrong result.
   *                
@@ -492,7 +491,7 @@ void SystemInit_ExtMemCtl(void)
 #ifdef SYSCLK_FREQ_HSE
 /**
   * @brief  Selects HSE as System clock source and configure HCLK, PCLK2
-  *          and PCLK1 prescalers.
+  *         and PCLK1 prescalers.
   * @note   This function should be used only after reset.
   * @param  None
   * @retval None
@@ -571,7 +570,7 @@ static void SetSysClockToHSE(void)
 #elif defined SYSCLK_FREQ_24MHz
 /**
   * @brief  Sets System clock frequency to 24MHz and configure HCLK, PCLK2 
-  *          and PCLK1 prescalers.
+  *         and PCLK1 prescalers.
   * @note   This function should be used only after reset.
   * @param  None
   * @retval None
@@ -675,7 +674,7 @@ static void SetSysClockTo24(void)
 #elif defined SYSCLK_FREQ_36MHz
 /**
   * @brief  Sets System clock frequency to 36MHz and configure HCLK, PCLK2 
-  *          and PCLK1 prescalers. 
+  *         and PCLK1 prescalers. 
   * @note   This function should be used only after reset.
   * @param  None
   * @retval None
@@ -776,7 +775,7 @@ static void SetSysClockTo36(void)
 #elif defined SYSCLK_FREQ_48MHz
 /**
   * @brief  Sets System clock frequency to 48MHz and configure HCLK, PCLK2 
-  *          and PCLK1 prescalers. 
+  *         and PCLK1 prescalers. 
   * @note   This function should be used only after reset.
   * @param  None
   * @retval None
@@ -877,7 +876,7 @@ static void SetSysClockTo48(void)
 #elif defined SYSCLK_FREQ_56MHz
 /**
   * @brief  Sets System clock frequency to 56MHz and configure HCLK, PCLK2 
-  *          and PCLK1 prescalers. 
+  *         and PCLK1 prescalers. 
   * @note   This function should be used only after reset.
   * @param  None
   * @retval None
@@ -979,7 +978,7 @@ static void SetSysClockTo56(void)
 #elif defined SYSCLK_FREQ_72MHz
 /**
   * @brief  Sets System clock frequency to 72MHz and configure HCLK, PCLK2 
-  *          and PCLK1 prescalers. 
+  *         and PCLK1 prescalers. 
   * @note   This function should be used only after reset.
   * @param  None
   * @retval None
@@ -1091,4 +1090,3 @@ static void SetSysClockTo72(void)
 /**
   * @}
   */    
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

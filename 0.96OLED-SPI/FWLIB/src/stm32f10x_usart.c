@@ -2,20 +2,19 @@
   ******************************************************************************
   * @file    stm32f10x_usart.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.2
+  * @date    17-September-2021
   * @brief   This file provides all the USART firmware functions.
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * Copyright (c) 2012 STMicroelectronics.
+  * All rights reserved.
   *
-  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
   ******************************************************************************
   */
 
@@ -947,7 +946,8 @@ void USART_ClearFlag(USART_TypeDef* USARTx, uint16_t USART_FLAG)
   *     @arg USART_IT_TC:   Transmission complete interrupt
   *     @arg USART_IT_RXNE: Receive Data register not empty interrupt
   *     @arg USART_IT_IDLE: Idle line detection interrupt
-  *     @arg USART_IT_ORE:  OverRun Error interrupt
+  *     @arg USART_IT_ORE_RX : OverRun Error interrupt if the RXNEIE bit is set
+  *     @arg USART_IT_ORE_ER : OverRun Error interrupt if the EIE bit is set 
   *     @arg USART_IT_NE:   Noise Error interrupt
   *     @arg USART_IT_FE:   Framing Error interrupt
   *     @arg USART_IT_PE:   Parity Error interrupt
@@ -1055,4 +1055,3 @@ void USART_ClearITPendingBit(USART_TypeDef* USARTx, uint16_t USART_IT)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

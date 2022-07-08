@@ -1,21 +1,20 @@
 /**
   ******************************************************************************
-  * @file    GPIO/IOToggle/stm32f10x_conf.h 
+  * @file    Project/STM32F10x_StdPeriph_Template/stm32f10x_conf.h 
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    08-April-2011
+  * @version V3.6.0
+  * @date    20-September-2021
   * @brief   Library configuration file.
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * Copyright (c) 2011 STMicroelectronics.
+  * All rights reserved.
   *
-  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
   ******************************************************************************
   */
 
@@ -24,30 +23,78 @@
 #define __STM32F10x_CONF_H
 
 /* Includes ------------------------------------------------------------------*/
-/* Uncomment/Comment the line below to enable/disable peripheral header file inclusion */
+/* Run Time Environment will set specific #define for each selected module below */
+#include "RTE_Components.h"
+
+#ifdef RTE_DEVICE_STDPERIPH_ADC
 #include "stm32f10x_adc.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_BKP
 #include "stm32f10x_bkp.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_CAN
 #include "stm32f10x_can.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_CEC
 #include "stm32f10x_cec.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_CRC
 #include "stm32f10x_crc.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_DAC
 #include "stm32f10x_dac.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_DBGMCU
 #include "stm32f10x_dbgmcu.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_DMA
 #include "stm32f10x_dma.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_EXTI
 #include "stm32f10x_exti.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_FLASH
 #include "stm32f10x_flash.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_FSMC
 #include "stm32f10x_fsmc.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_GPIO
 #include "stm32f10x_gpio.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_I2C
 #include "stm32f10x_i2c.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_IWDG
 #include "stm32f10x_iwdg.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_PWR
 #include "stm32f10x_pwr.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_RCC
 #include "stm32f10x_rcc.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_RTC
 #include "stm32f10x_rtc.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_SDIO
 #include "stm32f10x_sdio.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_SPI
 #include "stm32f10x_spi.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_TIM
 #include "stm32f10x_tim.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_USART
 #include "stm32f10x_usart.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_WWDG
 #include "stm32f10x_wwdg.h"
+#endif
+#ifdef RTE_DEVICE_STDPERIPH_FRAMEWORK
 #include "misc.h" /* High level functions for NVIC and SysTick (add-on to CMSIS functions) */
+#endif
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -73,5 +120,3 @@
 #endif /* USE_FULL_ASSERT */
 
 #endif /* __STM32F10x_CONF_H */
-
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

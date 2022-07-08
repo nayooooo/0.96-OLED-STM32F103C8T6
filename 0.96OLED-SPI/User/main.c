@@ -1,5 +1,9 @@
 #include "sys.h"
 #include <stdlib.h>
+#include "delay.h"
+#include "led.h"
+#include "oled.h"
+#include "screen.h"
 #include "bmp.h"
 
 #define X_TEST 43
@@ -13,13 +17,10 @@ int main()
 	
 	OLED_Clear();
 	
-	OLED_ShowBMP(0, 0, BMP0, 128, 64, FILL);
-	OLED_Refresh_Gram();
-	
 	LED = LED_ON;
 	
 	while(1)
 	{
-//		Demo_01();
+		Demo_01();
 	}
 }

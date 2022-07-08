@@ -1,4 +1,8 @@
 #include "sys.h"
+#include "delay.h"
+#include "led.h"
+#include "stm32f10x_rcc.h"
+#include "stm32f10x_gpio.h"
 
 void LED_GPIO_Config(uint32_t LED_GPIO_CLK, GPIO_TypeDef* LED_GPIO_PORT, uint16_t LED_GPIO_PIN)
 {

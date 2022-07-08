@@ -2,20 +2,19 @@
   ******************************************************************************
   * @file    stm32f10x_rtc.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.2
+  * @date    17-September-2021
   * @brief   This file provides all the RTC firmware functions.
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * Copyright (c) 2012 STMicroelectronics.
+  * All rights reserved.
   *
-  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
   ******************************************************************************
   */
 
@@ -132,9 +131,22 @@ void RTC_ExitConfigMode(void)
   */
 uint32_t RTC_GetCounter(void)
 {
-  uint16_t tmp = 0;
-  tmp = RTC->CNTL;
-  return (((uint32_t)RTC->CNTH << 16 ) | tmp) ;
+  uint16_t high1 = 0, high2 = 0, low = 0;
+
+  high1 = RTC->CNTH;
+  low   = RTC->CNTL;
+  high2 = RTC->CNTH;
+
+  if (high1 != high2)
+  { /* In this case the counter roll over during reading of CNTL and CNTH registers, 
+       read again CNTL register then return the counter value */
+    return (((uint32_t) high2 << 16 ) | RTC->CNTL);
+  }
+  else
+  { /* No counter roll over during reading of CNTL and CNTH registers, counter 
+       value is equal to first value of CNTL and CNTH */
+    return (((uint32_t) high1 << 16 ) | low);
+  }
 }
 
 /**
@@ -336,4 +348,3 @@ void RTC_ClearITPendingBit(uint16_t RTC_IT)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

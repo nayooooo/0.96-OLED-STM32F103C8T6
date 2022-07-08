@@ -2,20 +2,19 @@
   ******************************************************************************
   * @file    stm32f10x_pwr.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.2
+  * @date    17-September-2021
   * @brief   This file provides all the PWR firmware functions.
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * Copyright (c) 2012 STMicroelectronics.
+  * All rights reserved.
   *
-  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
   ******************************************************************************
   */
 
@@ -230,13 +229,12 @@ void PWR_EnterSTOPMode(uint32_t PWR_Regulator, uint8_t PWR_STOPEntry)
 
 /**
   * @brief  Enters STANDBY mode.
+  * @note   The Wakeup flag (WUF) need to be cleared at application level before to call this function  
   * @param  None
   * @retval None
   */
 void PWR_EnterSTANDBYMode(void)
 {
-  /* Clear Wake-up flag */
-  PWR->CR |= PWR_CR_CWUF;
   /* Select STANDBY mode */
   PWR->CR |= PWR_CR_PDDS;
   /* Set SLEEPDEEP bit of Cortex System Control Register */
@@ -304,4 +302,3 @@ void PWR_ClearFlag(uint32_t PWR_FLAG)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

@@ -2,21 +2,20 @@
   ******************************************************************************
   * @file    stm32f10x_usart.h
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.2
+  * @date    17-September-2021
   * @brief   This file contains all the functions prototypes for the USART 
   *          firmware library.
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * Copyright (c) 2012 STMicroelectronics.
+  * All rights reserved.
   *
-  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
   ******************************************************************************
   */
 
@@ -243,22 +242,35 @@ typedef struct
 #define USART_IT_TXE                         ((uint16_t)0x0727)
 #define USART_IT_TC                          ((uint16_t)0x0626)
 #define USART_IT_RXNE                        ((uint16_t)0x0525)
+#define USART_IT_ORE_RX                      ((uint16_t)0x0325) /* In case interrupt is generated if the RXNEIE bit is set */
 #define USART_IT_IDLE                        ((uint16_t)0x0424)
 #define USART_IT_LBD                         ((uint16_t)0x0846)
 #define USART_IT_CTS                         ((uint16_t)0x096A)
 #define USART_IT_ERR                         ((uint16_t)0x0060)
-#define USART_IT_ORE                         ((uint16_t)0x0360)
+#define USART_IT_ORE_ER                      ((uint16_t)0x0360) /* In case interrupt is generated if the EIE bit is set */
 #define USART_IT_NE                          ((uint16_t)0x0260)
 #define USART_IT_FE                          ((uint16_t)0x0160)
+
+/** @defgroup USART_Legacy 
+  * @{
+  */
+#define USART_IT_ORE                          USART_IT_ORE_ER               
+/**
+  * @}
+  */
+  
 #define IS_USART_CONFIG_IT(IT) (((IT) == USART_IT_PE) || ((IT) == USART_IT_TXE) || \
                                ((IT) == USART_IT_TC) || ((IT) == USART_IT_RXNE) || \
                                ((IT) == USART_IT_IDLE) || ((IT) == USART_IT_LBD) || \
                                ((IT) == USART_IT_CTS) || ((IT) == USART_IT_ERR))
+
 #define IS_USART_GET_IT(IT) (((IT) == USART_IT_PE) || ((IT) == USART_IT_TXE) || \
                             ((IT) == USART_IT_TC) || ((IT) == USART_IT_RXNE) || \
                             ((IT) == USART_IT_IDLE) || ((IT) == USART_IT_LBD) || \
                             ((IT) == USART_IT_CTS) || ((IT) == USART_IT_ORE) || \
+                            ((IT) == USART_IT_ORE_RX) || ((IT) == USART_IT_ORE_ER) || \
                             ((IT) == USART_IT_NE) || ((IT) == USART_IT_FE))
+
 #define IS_USART_CLEAR_IT(IT) (((IT) == USART_IT_TC) || ((IT) == USART_IT_RXNE) || \
                                ((IT) == USART_IT_LBD) || ((IT) == USART_IT_CTS))
 /**
@@ -335,9 +347,7 @@ typedef struct
                              ((FLAG) == USART_FLAG_NE) || ((FLAG) == USART_FLAG_FE))
                               
 #define IS_USART_CLEAR_FLAG(FLAG) ((((FLAG) & (uint16_t)0xFC9F) == 0x00) && ((FLAG) != (uint16_t)0x00))
-#define IS_USART_PERIPH_FLAG(PERIPH, USART_FLAG) ((((*(uint32_t*)&(PERIPH)) != UART4_BASE) &&\
-                                                  ((*(uint32_t*)&(PERIPH)) != UART5_BASE)) \
-                                                  || ((USART_FLAG) != USART_FLAG_CTS)) 
+
 #define IS_USART_BAUDRATE(BAUDRATE) (((BAUDRATE) > 0) && ((BAUDRATE) < 0x0044AA21))
 #define IS_USART_ADDRESS(ADDRESS) ((ADDRESS) <= 0xF)
 #define IS_USART_DATA(DATA) ((DATA) <= 0x1FF)
@@ -409,4 +419,3 @@ void USART_ClearITPendingBit(USART_TypeDef* USARTx, uint16_t USART_IT);
   * @}
   */ 
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
