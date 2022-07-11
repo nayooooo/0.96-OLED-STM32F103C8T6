@@ -1,6 +1,6 @@
 # 0.96_OLED-STM32F103C8T6
 
-一些搜集到的图形函数和自己编写的函数。
+一些搜集到的图形函数和自己编写的函数。（这篇README只涉及0.96-OLED-STM32F103C8T6）
 
 Some collected graphic functions and self written functions.
 
@@ -18,3 +18,5 @@ en:
 
 更新日志：
 1. 新增了IIC模式，但是效果很差 --2022.06.15--
+2. 新增了硬件SPI模式，但由于还没有调试好DMA模式，因此体验不佳 --2022.07.11--
+3. 在spi.h和oled.h中新增了一些选择宏定义，可以使用他们来选择SPI的实现方式，是否使用DMA以及屏幕刷新方式 --2022.07.11--
