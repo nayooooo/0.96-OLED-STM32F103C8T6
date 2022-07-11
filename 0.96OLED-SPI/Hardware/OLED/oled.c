@@ -96,7 +96,7 @@ void OLED_Refresh_Gram(void)
 	u8 i,n;
 	for(i=0;i<OLED_PAGE_MAX;i++)
 	{
-		OLED_SetPos(REFRESH_START_POS_COL, i);
+		OLED_SetPos(REFRESH_START_POS_COL, (REFRESH_START_POS_PAGE+i)%8);
 		for(n=0;n<OLED_COL_MAX;n++)OLED_WR_Byte(OLED_GRAM[n][i],OLED_DATA);
 	}
 #elif REFRESH_MODE == 1
