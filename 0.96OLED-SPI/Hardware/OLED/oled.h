@@ -11,13 +11,13 @@
 /******************************************************************************
 	说明: 
 	----------------------------------------------------------------
-	GND  电源地
+	GND    电源地
 	VCC  接5V或3.3v电源
 	D0   接PA5（SCL）
 	D1   接PA7（SDA）
 	RES  接PB0
 	DC   接PB1
-	CS   接PA4               
+	CS   接PA4
 	----------------------------------------------------------------
 ******************************************************************************/
 #ifndef __OLED_H
@@ -105,6 +105,17 @@ typedef struct
 /* ---------------- 点结构体定义 ---------------- */
 
 /* ---------------- 函数实现方法定义 ---------------- */
+#define REFRESH_START_POS_COL 0  // 刷新时的起始坐标的列坐标
+#define REFRESH_START_POS_PAGE 0  // 刷新时的起始坐标的页坐标
+
+// 选择刷新函数的实现方式（修改模式前请先修改OLED初始化配置）
+// 0->水平地址模式下的刷新函数
+// 1->垂直地址模式下的刷新函数
+// 2->垂直地址模式下的DMA刷新函数
+#define REFRESH_MODE 1
+// 如果您使用了OLED_SetPos，为预防显示错位请将下方的宏定义为1
+#define REFRESH_DMA_PREVENT_DISLOCATION_MODE 0
+
 #define SHOW_EVERY_STEEP 0  // 每变化一个点都将调用一次OLED_Refresh_Gram函数
 #define OLED_DRAW_LINE_BRESENHAM 1  // 使用brasenham方法画线，1，使用；0，禁用
 #define OLED_DRAW_ELLIPSE_BRESENHAM 1  // 使用brasenham方法画椭圆，1，使用；0，禁用
@@ -113,6 +124,7 @@ typedef struct
 //OLED控制用函数
 u32 mypow(u8 m,u8 n);
 static void OLED_WR_Byte(u8 dat,u8 cmd);
+static void OLED_SetPos(u8 col, u8 page);
 void OLED_Display_On(void);
 void OLED_Display_Off(void);
 void OLED_Refresh_Gram(void);

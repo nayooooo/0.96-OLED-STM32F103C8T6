@@ -26,12 +26,22 @@
  */
 void OLED_Show_Shrinking_Rectangle(u8 const x0, u8 const y0, u8 const a, u8 const b, u8 mode)
 {
+	u8 flag = (a>b)?(1):(0);
 	uint8_t Shr_a = OLED_COL_MAX-1, Shr_b = OLED_ROW_MAX-1;
 	
 	for(;Shr_a>a && Shr_b>b;)
 	{
 		if(Shr_a>a) Shr_a--;
 		if(Shr_b>b) Shr_b--;
+		OLED_DrawRectangle_Intelligent_Overflow(x0, y0, Shr_a, Shr_b, mode);
+		OLED_Refresh_Gram();
+		OLED_DrawRectangle_Intelligent_Overflow(x0, y0, Shr_a, Shr_b, !mode);
+	}
+	// ½«³¤±ß¼ÌÐøËõ¶Ì
+	for(;!(Shr_a==a && Shr_b==b);)
+	{
+		if(flag) Shr_a--;
+		else Shr_b--;
 		OLED_DrawRectangle_Intelligent_Overflow(x0, y0, Shr_a, Shr_b, mode);
 		OLED_Refresh_Gram();
 		OLED_DrawRectangle_Intelligent_Overflow(x0, y0, Shr_a, Shr_b, !mode);

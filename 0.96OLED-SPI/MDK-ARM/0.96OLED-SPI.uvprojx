@@ -341,7 +341,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_MD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Core;..\FWLIB\inc;..\Hardware\LED;..\Hardware\OLED;..\System\delay;..\System\SYS;..\User;..\Software\spi;..\Core\DAP</IncludePath>
+              <IncludePath>..\Core;..\FWLIB\inc;..\Hardware\LED;..\Hardware\OLED;..\System\delay;..\System\SYS;..\User;..\System\spi;..\Core\DAP;..\System\dma</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -415,6 +415,11 @@
               <FileType>1</FileType>
               <FilePath>..\FWLIB\src\stm32f10x_rcc.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f10x_dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FWLIB\src\stm32f10x_dma.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -432,6 +437,16 @@
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\System\delay\delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\spi\spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\dma\dma.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -457,13 +472,6 @@
         </Group>
         <Group>
           <GroupName>SOFTWARE</GroupName>
-          <Files>
-            <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Software\spi\spi.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>USER</GroupName>
